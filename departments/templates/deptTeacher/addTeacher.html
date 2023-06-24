@@ -1,0 +1,59 @@
+{% extends 'departments/admin.html' %}
+
+{%load crispy_forms_tags%}
+
+{%block head%}
+<title>Add New Course</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    label {
+        font-weight: bold;
+    }
+
+    h3 {
+        text-decoration: underline 2px;
+        text-underline-position: under;
+        margin-bottom: 1rem;
+    }
+</style>
+
+{%endblock%}
+
+
+{% block content %}
+
+<div class="container">
+    <form method="POST" id="teacherForm">
+        <div class="row mt-3 mb-3 justify-content-center">
+
+            <div class="col border border-primary p-3 rounded" style="height: fit-content;"
+                id="div-intro">
+                <h3>Provide the following informations</h3>
+
+                {% csrf_token %}
+                {{form|crispy}}
+
+                <button class="btn btn-outline-success">Save</button>
+
+            </div>
+            
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+    //fade out alert messege
+
+    document.addEventListener('DOMContentLoaded', () => {
+        $('.alert').fadeIn(300).delay(2000).fadeOut(400);
+    });
+
+
+    
+</script>
+{% endblock %}

@@ -1,0 +1,61 @@
+{% extends 'mainLayout.html' %}
+
+{%block myStyle%}
+<style>
+    #messege {
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        width: fit-content;
+        /* Need a specific value to work */
+    }
+</style>
+{%endblock%}
+
+{%block messege%}
+
+<div class="container text-center">
+    {% for messege in messages %}
+    <div id="messege">
+        <div class="alert alert-warning fade show fadingMessege" role="alert"
+            style="width: fit-content;">
+            {{messege}}
+        </div>
+    </div>
+    {% endfor %}
+    <div></div>
+    <div></div>
+
+</div>
+
+{% endblock %}
+
+{%block dept%}
+
+{% for dept in depts %}
+<li><a href="{% url 'dept:home' dept.dept_id %}">{{dept.dept_id}}</a></li>
+{% endfor %}
+
+{% endblock %}
+
+{% block content %}
+
+<div class="container text-center text-light">
+    <h1>Welcome to My Institute</h1>
+
+</div>
+
+{%endblock%}
+
+
+{% block script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+    //fade out alert messege
+    document.addEventListener('DOMContentLoaded', () => {
+        $('.fadingMessege').fadeIn(300).delay(2000).fadeOut(600);
+    });
+</script>
+{% endblock %}

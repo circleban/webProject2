@@ -1,0 +1,172 @@
+{%extends 'layout2.html'%}
+{%block head%}
+<title>{{dept.dept_id}} Faculties</title>
+<style>
+    #faculty {
+        margin-left: auto;
+        margin-right: auto;
+        margin-top: 0.5rem;
+        width: fit-content;
+        /* Need a specific value to work */
+    }
+
+    .count-box {
+        border: 2px solid #dee2e6;
+        border-radius: 0.5rem;
+        padding: 1rem;
+        width: fit-content;
+        transition: all 0.3s ease-in-out;
+        text-align: center;
+    }
+
+    .count-box:hover {
+        transform: scale(1.005);
+        box-shadow: 0.1rem 0.5rem 1rem rgba(0, 0, 0, 0.15);
+        cursor: pointer;
+    }
+
+    #blue-border {
+        border-top: 3px solid blue;
+    }
+
+    #yellow-border {
+        border-top: 3px solid yellow;
+    }
+
+    #green-border {
+        border-top: 3px solid green;
+    }
+
+    #orange-border {
+        border-top: 3px solid orange;
+    }
+    .no-faculty{
+        padding: 0.75rem;
+        border-radius: 1.2rem;
+        background-color: #c04729;
+        color: white;
+    }
+</style>
+{%endblock%}
+{%block body%}
+<h2 id="faculty" class="mb-5">Faculty Members</h2>
+<div class="container">
+    <div class="row">
+        <div class="col count-box me-4" id="blue-border">
+            <div class="row">
+                <div class="col-8 border-end border-secondary-subtle">
+                    <h4>Professor</h4>
+                </div>
+                <div class="col">
+                    <h4>{{prof|length}}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col count-box me-4" id="yellow-border">
+            <div class="row">
+                <div class="col-8 border-end border-secondary-subtle">
+                    <h4>Associate Professor</h4>
+                </div>
+                <div class="col">
+                    <h4>{{assocprof|length}}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col count-box me-4" id="green-border">
+            <div class="row">
+                <div class="col-8 border-end border-secondary-subtle">
+                    <h4>Assistant Professor</h4>
+                </div>
+                <div class="col">
+                    <h4>{{asstprof|length}}</h4>
+                </div>
+            </div>
+        </div>
+        <div class="col count-box me-4" id="orange-border">
+            <div class="row">
+                <div class="col-8 border-end border-secondary-subtle">
+                    <h4>Lecturer</h4>
+                </div>
+                <div class="col">
+                    <h4>{{lecturer|length}}</h4>
+                </div>
+            </div>
+        </div>
+    </div>
+    <hr>
+    <div class="row justify-content-center">
+        <h3 class="mt-2 text-center">Head of the Department</h3>
+        <div class="card" style="width: 18rem;">
+            <img src="..." class="card-img-top" alt="...">
+            <div class="card-body">
+                <h5 class="card-title">Prof. {{dept.head.name}}</h5>
+                <p class="card-text text-danger-emphasis">Head of {{dept.dept_id}}</p>
+            </div>
+        </div>
+    </div>
+    <div class="row justify-content-evenly">
+        <h3 class="mt-4">Professors</h3>
+        {% for p in prof %}
+        <div class="col-lg-3 col-md-4 col-sm-12 mb-2">
+            <div class="card" style="width: 18rem;">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">Prof. {{p.name}}</h5>
+                    <p class="card-text text-danger-emphasis">Professor</p>
+                </div>
+            </div>
+        </div>
+        {%empty%}
+            <h4 class="text-center"><span class="no-faculty">No Professors</span></h4>
+        {%endfor%}
+    </div>
+    <div class="row justify-content-evenly">
+        <h3 class="mt-4">Associate Professors</h3>
+        {% for p in asscoProf %}
+        <div class="col-lg-3 col-md-4 col-sm-12 mb-2">
+            <div class="card" style="width: 18rem;">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{p.name}}</h5>
+                    <p class="card-text text-danger-emphasis">Associate Professor</p>
+                </div>
+            </div>
+        </div>
+        {%empty%}
+            <h4 class="text-center"><span class="no-faculty">No Associate Professors</span></h4>
+        {%endfor%}
+    </div>
+    <div class="row justify-content-evenly">
+        <h3 class="mt-4">Assistant Professors</h3>
+        {% for p in asstProf %}
+        <div class="col-lg-3 col-md-4 col-sm-12 mb-2">
+            <div class="card" style="width: 18rem;">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{p.name}}</h5>
+                    <p class="card-text text-danger-emphasis">Assistant Professor</p>
+                </div>
+            </div>
+        </div>
+        {%empty%}
+            <h4 class="text-center"><span class="no-faculty">No Assistant Professors</span></h4>
+        {%endfor%}
+    </div>
+    <div class="row justify-content-evenly">
+        <h3 class="mt-4">Lecturers</h3>
+        {% for p in lect %}
+        <div class="col-lg-3 col-md-4 col-sm-12 mb-2">
+            <div class="card" style="width: 18rem;">
+                <img src="..." class="card-img-top" alt="...">
+                <div class="card-body">
+                    <h5 class="card-title">{{p.name}}</h5>
+                    <p class="card-text text-danger-emphasis">Lecturer</p>
+                </div>
+            </div>
+        </div>
+        {%empty%}
+            <h4 class="text-center"><span class="no-faculty">No Lecturers</span></h4>
+        {%endfor%}
+    </div>
+</div>
+{%endblock%}

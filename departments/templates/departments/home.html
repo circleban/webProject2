@@ -1,0 +1,52 @@
+{% extends 'layout.html' %}
+
+
+{%block css%}
+<title>{{dept.dept_id}}</title>
+<style>
+    #messege {
+        position: absolute;
+        left: 0;
+        right: 0;
+        margin-left: auto;
+        margin-right: auto;
+        width: fit-content;
+        /* Need a specific value to work */
+    }
+</style>
+{%endblock%}
+
+{%block messege%}
+
+
+{% for messege in messages %}
+<div id="messege">
+    <div class="alert alert-warning fade show fadingMessege" role="alert" style="width: fit-content;">
+        {{messege}}
+    </div>
+</div>
+{% endfor %}
+<div></div>
+<div></div>
+
+
+{% endblock %}
+
+{%block content%}
+<div class="container text-center">
+    {% if isLogged %}
+    <h1 class="text-light">Department of {{dept.dept_name}}</h1>
+    {%endif%}
+</div>
+{%endblock%}
+
+{% block script %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+    //fade out alert messege
+    document.addEventListener('DOMContentLoaded', () => {
+        $('.fadingMessege').fadeIn(300).delay(2000).fadeOut(600);
+        document.querySelector('body').classList.add('bg-dark');
+    });
+</script>
+{% endblock %}

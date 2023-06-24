@@ -1,0 +1,243 @@
+{% extends 'departments/admin.html' %}
+{%load static%}
+{%block head%}
+<title>All Courses</title>
+<link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/sidebars/">
+<link rel="stylesheet" href="{%static 'mycss/sidebar.css' %}">
+<style>
+    #courseDescription {
+        transition: all 0.2s ease-in-out;
+    }
+
+    #courseDescription:hover {
+        box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.358);
+        transform: scale(1.01);
+    }
+</style>
+
+{%endblock%}
+
+{%block content%}
+<main class="container-fluid">
+    <div class="d-flex flex-column align-items-stretch justify-content-center flex-shrink-0 bg-body-tertiary mt-3 mb-3"
+        style="width: 380px; height: 90vh;" id="mine">
+        <div class="d-flex align-items-center flex-shrink-0 p-3 link-body-emphasis text-decoration-none border-bottom">
+            <svg class="bi pe-none me-2" width="30" height="24">
+                <use xlink:href="#bootstrap"></use>
+            </svg>
+            <span class="fs-5 fw-semibold">Select a semsester</span>
+        </div>
+        <div class="list-group list-group-flush border-bottom scrollarea">
+            <a href="#" class="list-group-item list-group-item-action active py-3 lh-sm semesters" aria-current="true"
+                data-semester="1" id="s1">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">First semester</strong>
+                    <small>Duration: 13 weeks</small>
+                </div>
+                <div class="col-10 mb-1 small">First year odd semsester</div>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action py-3 lh-sm semesters" data-semester="2" id="s2">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">Second semester</strong>
+                    <small class="text-body-secondary">Duration: 13 weeks</small>
+                </div>
+                <div class="col-10 mb-1 small">First year even semsester</div>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action py-3 lh-sm semesters" data-semester="3" id="s3">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">Third semester</strong>
+                    <small class="text-body-secondary">Duration: 13 weeks</small>
+                </div>
+                <div class="col-10 mb-1 small">Second year odd semsester</div>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action py-3 lh-sm semesters" data-semester="4" id="s4">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">Fourth semester</strong>
+                    <small class="text-body-secondary">Duration: 13 weeks</small>
+                </div>
+                <div class="col-10 mb-1 small">Second year even semsester</div>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action py-3 lh-sm semesters" data-semester="5" id="s5">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">Fifth semester</strong>
+                    <small class="text-body-secondary">Duration: 13 weeks</small>
+                </div>
+                <div class="col-10 mb-1 small">Third year odd semsester</div>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action py-3 lh-sm semesters" data-semester="6" id="s6">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">Sixth semester</strong>
+                    <small class="text-body-secondary">Duration: 13 weeks</small>
+                </div>
+                <div class="col-10 mb-1 small">Third year even semsester</div>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action py-3 lh-sm semesters" data-semester="7" id="s7">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">Seventh semester</strong>
+                    <small class="text-body-secondary">Duration: 13 weeks</small>
+                </div>
+                <div class="col-10 mb-1 small">Fourth year odd semsester</div>
+            </a>
+            <a href="#" class="list-group-item list-group-item-action py-3 lh-sm semesters" data-semester="8" id="s8">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">Eighth semester</strong>
+                    <small class="text-body-secondary">Duration: 13 weeks</small>
+                </div>
+                <div class="col-10 mb-1 small">Fourth year even semsester</div>
+            </a>
+        </div>
+    </div>
+    <div class="row justify-content-around">
+        <div class="col" id="courseTable">
+
+        </div>
+        <div class="col-4 card text-bg-light mt-3 mb-3 overflow-auto p-0" id="courseDescription" style="height: 90vh;">
+            <div class="card-body">
+                <div class="card-title d-flex justify-content-between">
+                    <h5 id="course-title"></h5>
+                    <button type="button" class="btn-close" id="close-des" aria-label="Close"></button>
+                </div>
+                <p class="card-text" id="course-description"> </p>
+            </div>
+
+        </div>
+    </div>
+    {{recentSemester|json_script:"recentlyViewed"}}
+    {% csrf_token %}
+</main>
+<div class="modal fade" id="confirm-delete" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="modalLabel"></h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                This action cannot be undone! Are you sure?
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Go Back</button>
+                <button type="button" class="btn btn-danger" id="delete-btn">Delete</button>
+            </div>
+        </div>
+    </div>
+</div>
+{%endblock%}
+
+
+{%block scripts%}
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    // import axios from 'axios';
+    axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
+    axios.defaults.xsrfCookieName = "csrftoken";
+    (() => {
+        'use strict'
+        const tooltipTriggerList = Array.from(document.querySelectorAll('[data-bs-toggle="tooltip"]'))
+        tooltipTriggerList.forEach(tooltipTriggerEl => {
+            new bootstrap.Tooltip(tooltipTriggerEl)
+        })
+    })();
+
+    function fetchCourse(semester) {
+        fetch(`${semester}`)
+            .then(response => response.text())
+            .then(text => {
+                // console.log(text)
+                document.querySelector('#courseTable').innerHTML = text;
+                document.querySelector('#courseDescription').style.display = 'none';
+            })
+            .then(() => {
+                document.querySelectorAll('.courseContents').forEach(course => {
+                    course.addEventListener('click', () => {
+                        console.log('clicked');
+
+                        let ax = axios.get('', {
+                            params: { course: course.dataset.course },
+                            headers: {
+                                'X-Custom-Header': 'getCourseDescription',
+                                'application': 'application/json',
+
+                            }
+
+                        }).then(response => {
+                            let des = response.data;
+                            console.log(des);
+                            document.querySelector('#courseDescription').style.display = 'block';
+                            document.querySelector('#mine').style.width = '320px';
+                            document.querySelector('#close-des').addEventListener('click', () => {
+                                document.querySelector('#courseDescription').style.display = 'none';
+                            })
+                            document.querySelector('#course-title').textContent = des.title;
+                            document.querySelector('#course-description').innerHTML = '';
+                            for (const topic in des) {
+                                if (topic === 'title') continue;
+                                document.querySelector('#course-description').innerHTML += `<p><strong>${topic}:</strong> ${des[topic]}</p>`;
+                            }
+                        })
+                            .catch(error => console.log(error));
+                    });
+                });
+            })
+            .catch(error => console.log(error))
+    }
+    document.addEventListener('DOMContentLoaded', () => {
+        document.querySelector('#courseDescription').style.display = 'none';
+        const semester = JSON.parse(document.querySelector('#recentlyViewed').textContent);
+        fetchCourse(parseInt(semester));
+        activeLink(parseInt(semester));
+        document.querySelectorAll('.semesters').forEach(semester => {
+            semester.addEventListener('click', () => {
+                fetchCourse(semester.dataset.semester);
+                activeLink(semester.dataset.semester);
+            });
+        });
+        const confirm = document.getElementById('confirm-delete');
+
+        if (confirm) {
+            confirm.addEventListener('show.bs.modal', event => {
+                // Button that triggered the modal
+                const button = event.relatedTarget
+                // Extract info from data-bs-* attributes
+                const recipient = button.getAttribute('data-courseID')
+                console.log(recipient)
+                document.getElementById('modalLabel').textContent = `Delete ${recipient}?`
+                //TODO: add delete functionality
+                document.querySelector('#delete-btn').addEventListener('click', () => {
+
+                    axios(
+                        {
+                            method: 'post',
+                            url: '',
+                            headers: {
+                                'X-Custom-Header': 'deleteCourse',
+                                'application': 'application/json',
+                            },
+                            mode: 'same-origin',
+                            data: {
+                                courseID: recipient,
+                            }
+
+                        }).then(response => {
+                            console.log(response);
+                            if (response.data.success) {
+                                // const modal = bootstrap.Modal.getInstance(confirm);
+                                // modal.hide();
+                                window.location.reload();
+                            }
+                        }).catch(error => console.log(error));
+                });
+            })
+        }
+
+    });
+    function activeLink(semesterNo) {
+        document.querySelectorAll('.semesters').forEach(semester => {
+            semester.classList.remove('active');
+        })
+        document.querySelector(`#s${semesterNo}`).classList.add('active');
+
+    }
+</script>
+
+{%endblock%}

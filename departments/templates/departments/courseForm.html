@@ -1,0 +1,160 @@
+{% extends 'departments/admin.html' %}
+
+{%load crispy_forms_tags%}
+
+{%block head%}
+<title>Add New Course</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+<style>
+    label {
+        font-weight: bold;
+    }
+
+    h3 {
+        text-decoration: underline 2px;
+        text-underline-position: under;
+    }
+</style>
+
+{%endblock%}
+
+
+{% block content %}
+
+<div class="container">
+    <form method="POST" id="form1">
+        <div class="row mt-3 mb-3 justify-content-between">
+
+            <div class="col-sm-12 col-md-5 border border-primary p-3 rounded" style="height: fit-content;"
+                id="div-intro">
+                <h3>Course Informations</h3>
+
+                {% csrf_token %}
+                {{form|crispy}}
+
+                <button class="btn btn-outline-success">Add This Course</button>
+
+            </div>
+            <div class="col-sm-12 col-md-5 border border-primary p-3 rounded overflow-auto" id="div-desc">
+
+                <h3>Course Description</h3>
+                
+                {%for k,v in descript.items%}
+                <div class="description">
+                    <div class="mb-3">
+                        <label for="title{{forloop.counter}}" class="form-label">Topic Name</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control changeTitle" placeholder="Topic Name"
+                                aria-label="Topic Name" aria-describedby="button-addon2" id="title{{forloop.counter}}"
+                                name="title{{forloop.counter}}" value="{{k}}">
+                            <button class="btn btn-outline-primary newTitle" type="button" id="btn{{forloop.counter}}"
+                                title="Add new topic"><i class="fa fa-plus"></i></button>
+                        </div>
+
+                    </div>
+                    <div class="mb-3">
+                        <label for="Topic{{forloop.counter}}" class="form-label">Syllabus</label>
+                        <textarea class="form-control changeTopic" name="Topic{{forloop.counter}}" id="Topic{{forloop.counter}}"
+                            rows="3" placeholder="Syllabus">{{v}}</textarea>
+                    </div>
+                </div>
+                {%empty%} 
+                <div class="description">
+                    <div class="mb-3">
+                        <label for="title1" class="form-label">Topic Name</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control changeTitle" placeholder="Topic Name"
+                                aria-label="Topic Name" aria-describedby="button-addon2" id="title1" name="title1">
+                            <button class="btn btn-outline-primary newTitle" type="button" id="btn1" title="Add new topic"><i
+                                    class="fa fa-plus"></i></button>
+                        </div>
+
+                    </div>
+                    <div class="mb-3">
+                        <label for="Topic1" class="form-label">Syllabus</label>
+                        <textarea class="form-control changeTopic" name="Topic1" id="Topic1" rows="3"
+                            placeholder="Syllabus"></textarea>
+                    </div>
+                </div>
+                <input type="hidden" name="totalTitles" data-titles="1" value="1" id="totalTitles">
+                {%endfor%}
+                
+                {%if descript%}
+                <input type="hidden" name="totalTitles" data-titles="{{descript|length}}" value="{{descript|length}}" id="totalTitles"> {# this is for javascript, indicates how many titles are there #}
+                {# value should be equal to data-titles so that it can be accessed from views.py#}
+                {%endif%}
+
+            </div>
+        </div>
+
+    </form>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.3/jquery.min.js"></script>
+<script>
+    //fade out alert messege
+
+    document.addEventListener('DOMContentLoaded', () => {
+        $('.alert').fadeIn(300).delay(2000).fadeOut(400);
+        $('#div-desc').height($('#div-intro').height());
+        let totalTitles = document.getElementById('totalTitles');
+        document.querySelectorAll('.newTitle').forEach(btn => {
+            btn.addEventListener('click', addTitle);
+        });
+        document.getElementById('form1').addEventListener('submit', submitForm);
+    });
+
+
+    function addTitle(evt) {
+        console.dir(evt)
+        let totalTitles = document.getElementById('totalTitles');
+        let titles = parseInt(totalTitles.dataset.titles);
+        titles += 1;
+        totalTitles.dataset.titles = titles;
+        totalTitles.value = titles;
+
+        let div = document.createElement('div');
+        div.classList.add('description');
+        par = evt.target.closest('.description');
+        par.insertAdjacentElement('afterend', div);
+        let synt = `<div class="mb-3">
+                        <label for="title${titles}" class="form-label">Topic Name</label>
+                        <div class="input-group">
+                            <input type="text" class="form-control changeTitle" placeholder="Topic Name" aria-label="Topic Name"
+                                aria-describedby="button-addon2" id="title${titles}" name="title${titles}">
+                            <button class="btn btn-outline-primary newTitle" type="button" id="btn${titles}"
+                                title="Add new topic"><i class="fa fa-plus"></i></button>
+                        </div>
+
+                    </div>
+                    <div class="mb-3">
+                        <label for="Topic${titles}" class="form-label">Syllabus</label>
+                        <textarea class="form-control changeTopic" name="Topic${titles}" id="Topic${titles}" rows="3" placeholder="Syllabus"></textarea>
+                    </div>`;
+        div.innerHTML = synt;
+        document.getElementById(`btn${titles}`).addEventListener('click', addTitle);
+    }
+
+    function submitForm(evt) {
+        let changes = document.getElementsByClassName('changeTitle');
+        let totalTitles = parseInt(document.getElementById('totalTitles').value);
+        for (i of changes) {
+            if (i.value === '') {
+                i.closest('.description').remove();
+                totalTitles -= 1;
+            }
+        }
+        document.getElementById('totalTitles').value = totalTitles;
+        changes = document.getElementsByClassName('changeTitle');
+        topics = document.getElementsByClassName('changeTopic');
+        for (i = 0; i < totalTitles; i++) {
+            // change the name of inputs
+            changes[i].name = `title${i}`;
+            topics[i].name = `Topic${i}`;
+        }
+    }
+</script>
+{% endblock %}
