@@ -1,0 +1,78 @@
+{% extends 'departments/admin.html' %}
+{% load crispy_forms_tags%}
+
+{% block head %}
+<title>Add New Series</title>
+<style>
+    label {
+        font-weight: bold;
+    }
+
+    h3 {
+        text-decoration: underline 2px;
+        text-underline-position: under;
+        margin-bottom: 1rem;
+    }
+    
+</style>
+{%endblock%}
+
+
+{% block content %}
+
+<div class="container" id="replacable">
+    <div class="row mt-5">
+        <div class="col">
+            <h3>Add New Series</h3>
+        </div>
+    </div>
+    <div class="row border border-primary rounded py-3 px-1">
+        <form method="POST" id="seriesForm">
+            {% csrf_token %}
+            {{form|crispy}}
+        <div class="col-12">
+            <button class="btn btn-outline-success" id="next">Next</button>
+        </div>
+        </form>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block scripts %}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        repl = document.getElementById('replacable');
+        form = document.getElementById('seriesForm');
+        form.addEventListener('submit', submitForm);
+        function submitForm(e){
+            e.preventDefault();
+            data = new FormData(form);
+            // need headers for csrf token
+            fetch('', {
+                method: 'POST',
+                body: data,
+                headers: {
+                    'X-Custom-Headers': 'addSeries'
+                }
+
+            })
+            .then(response => response.json())
+            .then(result => {
+                if(result['success']){
+                    repl.innerHTML = result['html'];
+                    console.log(result['html']);
+                }
+                else{
+                    const dom = new DOMParser().parseFromString(result['html'], 'text/html');
+                    repl.innerHTML = dom.getElementById('replacable').innerHTML;
+                    form = document.getElementById('seriesForm');
+                    form.addEventListener('submit', submitForm);
+                }
+            })
+        }
+    });
+</script>
+
+{% endblock %}

@@ -83,17 +83,28 @@
                     <div class="card-body">
                         <h5 class="card-title">Administrative actions</h5>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><a class="link-primary link-offset-2 link-offset-3-hover icon-link icon-link-hover" href="#">
-                                Department Head
-                                <svg class="bi" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                                </svg>
-                            </a></li>
-                            <li class="list-group-item">A second item</li>
+                            <li class="list-group-item"><a
+                                    class="link-primary link-offset-2 link-offset-3-hover icon-link icon-link-hover"
+                                    href="#">
+                                    Department Head
+                                    <svg class="bi" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                                    </svg>
+                                </a></li>
+                                <li class="list-group-item"><a
+                                    class="link-primary link-offset-2 link-offset-3-hover icon-link icon-link-hover"
+                                    href="{% url 'dept:allSemesters' dept.dept_id %}">
+                                    Manage Semesters
+                                    <svg class="bi" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                                    </svg>
+                                </a></li>
                             <li class="list-group-item">A third item</li>
-                          </ul>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -104,24 +115,27 @@
                     <div class="card-body">
                         <h5 class="card-title">Teacher's portal</h5>
                         <ul class="list-group list-group-flush">
-                            <li class="list-group-item"><a class="link-primary link-offset-2 link-offset-3-hover icon-link icon-link-hover" href="{%url 'dept:addTeacher' dept.dept_id %}">
-                                Add new faculty member
-                                <svg class="bi" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                                </svg>
-                            </a></li>
-                            <li class="list-group-item"><a class="link-primary link-offset-2 link-offset-3-hover icon-link icon-link-hover" href="#">
-                                View all faculty members
-                                <svg class="bi" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                    fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
-                                    <path fill-rule="evenodd"
-                                        d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                                </svg>
-                            </a></li>
-                            <li class="list-group-item">A third item</li>
-                          </ul>
+                            <li class="list-group-item"><a
+                                    class="link-primary link-offset-2 link-offset-3-hover icon-link icon-link-hover"
+                                    href="{%url 'dept:addTeacher' dept.dept_id %}">
+                                    Add new faculty member
+                                    <svg class="bi" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                                    </svg>
+                                </a></li>
+                            <li class="list-group-item"><a
+                                    class="link-primary link-offset-2 link-offset-3-hover icon-link icon-link-hover"
+                                    href="{% url 'dept:allTeachers' dept.dept_id %}">
+                                    View all faculty members
+                                    <svg class="bi" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                                    </svg>
+                                </a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -131,15 +145,28 @@
                 <div class="card mb-3 adjust-height" style="width: 18rem;">
                     <div class="card-body">
                         <h5 class="card-title">Student's portal</h5>
-                        <p class="card-text">Add series, manage students.</p>
-                        <a class="icon-link icon-link-hover" href="#">
-                            Enter
-                            <svg class="bi" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
-                                fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
-                                <path fill-rule="evenodd"
-                                    d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                            </svg>
-                        </a>
+                        <ul class="list-group list-group-flush">
+                            <li class="list-group-item"><a
+                                    class="link-primary link-offset-2 link-offset-3-hover icon-link icon-link-hover"
+                                    href="{% url 'dept:addSeries' dept.dept_id %}">
+                                    Add new series
+                                    <svg class="bi" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                                    </svg>
+                                </a></li>
+                            <li class="list-group-item"><a
+                                    class="link-primary link-offset-2 link-offset-3-hover icon-link icon-link-hover"
+                                    href="#">
+                                    View all series
+                                    <svg class="bi" xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                        fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
+                                        <path fill-rule="evenodd"
+                                            d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
+                                    </svg>
+                                </a></li>
+                        </ul>
                     </div>
                 </div>
             </div>
@@ -169,10 +196,9 @@
                                         fill="currentColor" class="bi bi-arrow-right" viewBox="0 0 16 16">
                                         <path fill-rule="evenodd"
                                             d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
-                                    </svg></li>
-                            
+                                    </svg>
+                            </li>
                         </ul>
-
                     </div>
                 </div>
             </div>
@@ -192,7 +218,7 @@
         document.addEventListener('DOMContentLoaded', () => {
             $('.fadingMessege').fadeIn(300).delay(2000).fadeOut(600);
         });
-    </script>    
+    </script>
     {%block scripts%}
     {%endblock%}
 </body>

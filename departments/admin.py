@@ -25,5 +25,7 @@ admin.site.register(Department, DepartmentAdmin)
 admin.site.register(Course,CourseAdmin)
 admin.site.register(Series, SeriesAdmin)
 admin.site.register(Section)
+admin.site.register(courseRegistration) 
+admin.site.register(Semester)
 
 

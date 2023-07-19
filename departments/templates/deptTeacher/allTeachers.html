@@ -30,7 +30,7 @@
     }
 
     #yellow-border {
-        border-top: 3px solid yellow;
+        border-top: 3px solid rgb(157, 113, 10);
     }
 
     #green-border {
@@ -38,13 +38,17 @@
     }
 
     #orange-border {
-        border-top: 3px solid orange;
+        border-top: 3px solid rgb(200, 255, 0);
     }
     .no-faculty{
         padding: 0.75rem;
         border-radius: 1.2rem;
         background-color: #c04729;
         color: white;
+    }
+    .no-link{
+        text-decoration: none;
+        color: black;
     }
 </style>
 {%endblock%}
@@ -53,24 +57,28 @@
 <div class="container">
     <div class="row">
         <div class="col count-box me-4" id="blue-border">
-            <div class="row">
-                <div class="col-8 border-end border-secondary-subtle">
-                    <h4>Professor</h4>
+            <a href="#Professor" class="no-link">
+                <div class="row">
+                    <div class="col-8 border-end border-secondary-subtle">
+                        <h4>Professor</h4>
+                    </div>
+                    <div class="col">
+                        <h4>{{prof|length}}</h4>
+                    </div>
                 </div>
-                <div class="col">
-                    <h4>{{prof|length}}</h4>
-                </div>
-            </div>
+            </a>
         </div>
         <div class="col count-box me-4" id="yellow-border">
-            <div class="row">
-                <div class="col-8 border-end border-secondary-subtle">
-                    <h4>Associate Professor</h4>
+            <a href="#assocProf" class="no-link">
+                <div class="row">
+                    <div class="col-8 border-end border-secondary-subtle">
+                        <h4>Associate Professor</h4>
+                    </div>
+                    <div class="col">
+                        <h4>{{assocProf|length}}</h4>
+                    </div>
                 </div>
-                <div class="col">
-                    <h4>{{assocprof|length}}</h4>
-                </div>
-            </div>
+            </a>
         </div>
         <div class="col count-box me-4" id="green-border">
             <div class="row">
@@ -78,7 +86,7 @@
                     <h4>Assistant Professor</h4>
                 </div>
                 <div class="col">
-                    <h4>{{asstprof|length}}</h4>
+                    <h4>{{asstProf|length}}</h4>
                 </div>
             </div>
         </div>
@@ -88,7 +96,7 @@
                     <h4>Lecturer</h4>
                 </div>
                 <div class="col">
-                    <h4>{{lecturer|length}}</h4>
+                    <h4>{{lect|length}}</h4>
                 </div>
             </div>
         </div>
@@ -99,19 +107,19 @@
         <div class="card" style="width: 18rem;">
             <img src="..." class="card-img-top" alt="...">
             <div class="card-body">
-                <h5 class="card-title">Prof. {{dept.head.name}}</h5>
+                <h5 class="card-title">Prof. {{dept.head.full_name}}</h5>
                 <p class="card-text text-danger-emphasis">Head of {{dept.dept_id}}</p>
             </div>
         </div>
     </div>
-    <div class="row justify-content-evenly">
+    <div class="row justify-content-evenly" id="Professor">
         <h3 class="mt-4">Professors</h3>
         {% for p in prof %}
         <div class="col-lg-3 col-md-4 col-sm-12 mb-2">
             <div class="card" style="width: 18rem;">
                 <img src="..." class="card-img-top" alt="...">
                 <div class="card-body">
-                    <h5 class="card-title">Prof. {{p.name}}</h5>
+                    <h5 class="card-title">Prof. {{p.full_name}}</h5>
                     <p class="card-text text-danger-emphasis">Professor</p>
                 </div>
             </div>
@@ -120,14 +128,14 @@
             <h4 class="text-center"><span class="no-faculty">No Professors</span></h4>
         {%endfor%}
     </div>
-    <div class="row justify-content-evenly">
+    <div class="row justify-content-evenly" id="assocProf">
         <h3 class="mt-4">Associate Professors</h3>
-        {% for p in asscoProf %}
+        {% for p in assocProf %}
         <div class="col-lg-3 col-md-4 col-sm-12 mb-2">
             <div class="card" style="width: 18rem;">
                 <img src="..." class="card-img-top" alt="...">
                 <div class="card-body">
-                    <h5 class="card-title">{{p.name}}</h5>
+                    <h5 class="card-title">{{p.full_name}}</h5>
                     <p class="card-text text-danger-emphasis">Associate Professor</p>
                 </div>
             </div>
@@ -143,7 +151,7 @@
             <div class="card" style="width: 18rem;">
                 <img src="..." class="card-img-top" alt="...">
                 <div class="card-body">
-                    <h5 class="card-title">{{p.name}}</h5>
+                    <h5 class="card-title">{{p.full_name}}</h5>
                     <p class="card-text text-danger-emphasis">Assistant Professor</p>
                 </div>
             </div>
@@ -159,7 +167,7 @@
             <div class="card" style="width: 18rem;">
                 <img src="..." class="card-img-top" alt="...">
                 <div class="card-body">
-                    <h5 class="card-title">{{p.name}}</h5>
+                    <h5 class="card-title">{{p.full_name}}</h5>
                     <p class="card-text text-danger-emphasis">Lecturer</p>
                 </div>
             </div>

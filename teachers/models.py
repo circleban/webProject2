@@ -1,14 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import User
 from departments.models import Department
+from Main.models import Person
 # Create your models here.
 
-class Teacher(models.Model):
-    id = models.AutoField(primary_key=True)
+class Teacher(Person):
     code = models.CharField(max_length=5)
-    name = models.CharField(max_length=50, null=True)
-    user = models.OneToOneField(User, on_delete=models.CASCADE, null=True, blank=True, related_name='teacher')
-    phone_no = models.CharField(max_length=15, null=True, blank=True)
+    user = models.OneToOneField(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='teacher')
     dept = models.ForeignKey(Department, on_delete=models.CASCADE, related_name='teachers')
     joined = models.DateField(auto_now_add=True)
     intro = models.TextField(null=True, blank=True)
@@ -24,7 +22,6 @@ class Teacher(models.Model):
         (lecturer, 'Lecturer')
     ]
     designation = models.CharField(max_length=20, choices=teacher_type_choices, default=lecturer)
-
         
     active = "Active"
     leave = "On Leave"
@@ -42,4 +39,4 @@ class Teacher(models.Model):
         ]
 
     def __str__(self) -> str:
-        return f'{self.code}-{self.dept.dept_id}: {self.name} ({self.designation})'
+        return f'{self.code}-{self.dept.dept_id}: {self.full_name} ({self.designation})'

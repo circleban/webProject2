@@ -1,0 +1,37 @@
+{% load my_filters %}
+<div class="row mt-5">
+    <div class="col">
+        <h3>Please provide the students' information for {{series.name}}</h3>
+    </div>
+</div>
+<div class="row border border-primary rounded py-3 px-1">
+    <form method="POST" id="seriesForm">
+        {% csrf_token %}
+
+        <div class="col-12 mb-2" style="max-height: 65vh; overflow: auto;">
+            <table class="table table-bordered table-sm text-center table-hover">
+                <thead class="table-primary" style="position: sticky; top:-1px;">
+                    <tr>
+                        <th scope="col">Roll No</th>
+                        <th scope="col">Student Name</th>
+                        <th scope="col">Section</th>
+                        <th scope="col">Email</th>
+                    </tr>
+                </thead>
+                <tbody class="table-group-divider">
+                    {% for k,v in rolls.items %}
+                    <tr id="{{v}}">
+                        <th scope="row">{{v}}</th>
+                        <td><input type="text" required></td>
+                        <td>{{k|get_section:students_per_section}}</td>
+                        <td><input type="email" required></td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div class="col-12">
+            <button class="btn btn-outline-success">Next</button>
+        </div>
+    </form>
+</div>

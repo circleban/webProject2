@@ -1,0 +1,108 @@
+{% extends 'departments/admin.html' %}
+
+{% block head %}
+<title>{{dept.dept_id}} Semesters</title>
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+    {% if semesters %}
+
+    <h2 class="mb-5">Semesters</h2>
+    <table class="table table-bordered table-sm text-center table-hover">
+        <thead class="table-primary">
+            <tr>
+                <th scope="col">Semester No.</th>
+                <th scope="col">Offered in year</th>
+                <th scope="col">Semester of the year</th>
+                <th scope="col">Number of enrolled students</th>
+                <th scope="col">Courses</th>
+            </tr>
+        </thead>
+        <tbody class="table-group-divider">
+            {% for s in semesters %}
+            <tr id="{{s.id}}">
+                <th scope="row">{{s.sem_no}}</th>
+                <td>{{s.year}}</td>
+                <td>{{s.year_sem}}</td>
+                <td>To be filled later</td>
+                <td><a href="#">View</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <div class="text-bg-warning p-3 mt-2 rounded text-center" id="no-semester">Currenty no semester exists.
+        <a href="#" data-bs-toggle="modal" data-bs-target="#confirmation" 
+            class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover">Add Semester.</a>
+    </div>
+    {% endif %}
+</div>
+
+<div class="modal" tabindex="-1" id="confirmation" id="confirm">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Modal title</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <label for="s-count">Number of semesters to be added: </label>
+                <input type="number" name="s-count" id="s-count">
+                <p class="text-info" id="s-count-info"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                <button type="button" class="btn btn-primary" id="confirm-button">Confirm</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+{%endblock%}
+
+{% block scripts %}
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+            const cnt = document.querySelector('#s-count');
+            cnt.addEventListener('input', (evt) => {
+                const p = document.querySelector('#s-count-info');
+                p.innerHTML = 'A total of ' + cnt.value + ' semesters will be created in the database.';
+                cnt.insertAdjacentElement('afterend', p);
+            });
+            const confirm = document.querySelector('#confirm-button');
+            confirm.addEventListener('click', evt=>{
+                const div = document.querySelector('#no-semester');
+                const p = document.createElement('p');
+                p.innerHTML = 'Creating semesters...';
+                div.insertAdjacentElement('afterend', p);
+                const count = cnt.value;
+                axios({
+                    method: 'get',
+                    url: '',
+                    headers:{
+                        'X-Custom-Header': 'createSemester'
+                    },
+                    params: {
+                        count: count
+                    }
+                })
+                .then(response => {
+                    if(response.data.success){
+                        p.innerHTML = 'Semesters created successfully.';
+                        setTimeout(()=>{
+                            window.location.reload();
+                        }, 1000);
+                    }
+                    else{
+                        window.location.reload();
+                    }
+                })
+            })
+        });
+</script>
+
+{% endblock %}

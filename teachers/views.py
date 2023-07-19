@@ -59,10 +59,10 @@ def register(request):
             if request.headers.get('X-objective', None) == 'register':
                 if not request.session['register']:
                     return HttpResponseForbidden()
-                print(request.POST)
                 form = TeacherRegisterForm(request.POST)
                 if form.is_valid():
                     form.save()
+                    request.session['register'] = False
                     messages.success(request, 'You have successfully registered. Please Login')
                     return JsonResponse({'success': True})
                 else:
@@ -74,14 +74,17 @@ def register(request):
             else:
                 form = verificationForm(request.POST)
                 if form.is_valid():
-                    teacher = Teacher.objects.get(code=form.cleaned_data.get('code'), dept=Department.objects.get(dept_id=form.cleaned_data.get('dept_id')))
+                    code = form.cleaned_data.get('code')
+                    dept_id = form.cleaned_data.get('dept_id')
+                    teacher = Teacher.objects.get(code=code, dept=Department.objects.get(dept_id=dept_id))
                     if teacher.user is not None:
                         messages.info(request, 'You have already registered. Please Login')
                         return HttpResponseRedirect(reverse('teachers:login'))
                     request.session['register'] = True
-                    code = form.cleaned_data.get('code')
-                    dept_id = form.cleaned_data.get('dept_id')
-                    form = TeacherRegisterForm(initial={'username':f'{code}-{dept_id}','code': code, 'dept_id': dept_id})
+                    
+                    first_name = teacher.first_name
+                    last_name = teacher.last_name
+                    form = TeacherRegisterForm(initial={'username':f'{code}-{dept_id}','code': code, 'dept_id': dept_id, 'first_name': first_name, 'last_name': last_name})
                     return render(request, 'teachers/register.html', {
                         'form': form,
                         'objective': 'register',

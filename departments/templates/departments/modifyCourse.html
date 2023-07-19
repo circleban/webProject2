@@ -128,7 +128,7 @@
 {%block scripts%}
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
-    // import axios from 'axios';
+
     axios.defaults.xsrfHeaderName = "X-CSRFTOKEN";
     axios.defaults.xsrfCookieName = "csrftoken";
     (() => {
@@ -139,8 +139,8 @@
         })
     })();
 
-    function fetchCourse(semester) {
-        fetch(`${semester}`)
+    function fetchCourse(semester_id) {
+        fetch(`${semester_id}`)
             .then(response => response.text())
             .then(text => {
                 // console.log(text)

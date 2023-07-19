@@ -75,6 +75,7 @@ class TeacherRegisterForm(UserCreationForm):
         if commit:
             user.save()
             teach.user = user
+            teach.email = user.email
             teach.save()
 
         

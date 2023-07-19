@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponseNotFound
 from django.urls import reverse
-from .models import Department, Course
+from .models import Department, Course, Semester
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
-from .forms import DeptLogin, addCourseForm, addTeacherForm
+from .forms import *
 from django.contrib import messages
 from django.db import IntegrityError
 import json, math
@@ -92,7 +92,7 @@ def modifyCourse(request, deptId):
         print(request.session['semester'])
 
         if request.user == dept.user:
-            if request.method=='POST' and request.headers.get('X-Custom-Header','No X-Custom-Header') == 'deleteCourse':
+            if request.method == 'POST' and request.headers.get('X-Custom-Header','No X-Custom-Header') == 'deleteCourse':
                 data = json.loads(request.body)
                 course = Course.objects.get(title=data['courseID'])
                 course.delete()
@@ -138,8 +138,9 @@ def addCourse(request, deptId):
                     title = form.cleaned_data['title']
                     name = form.cleaned_data['name']
                     Type = form.cleaned_data['type']
-                    semester = form.cleaned_data['semester']
+                    sem_id = form.cleaned_data['semester']
                     credit = form.cleaned_data['credit']
+                    semester = Semester.objects.get(id=sem_id, dept=dept)
                     course = dept.courses.create(title=title, name=name, type=Type, semester=semester, credit=credit)
                     
                     # save to database in description field
@@ -169,20 +170,21 @@ def addCourse(request, deptId):
         return HttpResponseRedirect(reverse('Main:home'))
     
 
-def courseTable(request, deptId, semester):
+def courseTable(request, deptId, semester_id):
     # path('admin/<str:deptId>/course-table', views.courseTable, name='courseTable')
     try:
         print(request)
         dept = Department.objects.get(dept_id=deptId)
-        if semester<1 or semester>8:
+        if semester_id<1 or semester_id>8:
             raise ValueError('Invalid semester')
-        request.session['semester'] = semester
+        request.session['semester'] = semester_id
         if request.user == dept.user:
+            semester = Semester.objects.get(id=semester_id, dept=dept)
             return render(request, 'departments/courseTable.html', {
                 'dept': dept,
                 'courses': dept.courses.filter(semester=semester),
-                'year': math.ceil(semester/2),
-                'semester': 'Odd' if semester%2==1 else 'Even',
+                'year': semester.year,
+                'semester': semester.year_sem,
             })
         else:
             messages.error(request, 'You are not authorized to access this page')
@@ -205,11 +207,12 @@ def editCourse(request, deptId, courseId):
                     title = form.cleaned_data['title']
                     name = form.cleaned_data['name']
                     Type = form.cleaned_data['type']
-                    semester = form.cleaned_data['semester']
+                    semester_id = form.cleaned_data['semester']
                     credit = form.cleaned_data['credit']
                     course.title = title
                     course.name = name
                     course.type = Type
+                    semester = Semester.objects.get(id=semester_id, dept=dept)
                     course.semester = semester
                     course.credit = credit
                     totalTitles = int(request.POST.get('totalTitles','0'))
@@ -230,6 +233,7 @@ def editCourse(request, deptId, courseId):
                         'descript': json.loads(course.description)
                     })
             else:
+                form.initial['semester'] = course.semester.id
                 return render(request, 'departments/courseForm.html', {
                     'form': form,
                     'dept': dept,
@@ -258,11 +262,15 @@ def addTeacher(request, deptId):
         if request.user == dept.user:
             if request.method == 'POST':
                 if form.is_valid():
-                    code = form.cleaned_data['code']
-                    name = form.cleaned_data['name']
-                    designation = form.cleaned_data['designation']
-                    intro = form.cleaned_data['intro']
-                    dept.teachers.create(code=code, name=name, designation=designation, intro=intro)
+                    # code = form.cleaned_data['code']
+                    # full_name = form.cleaned_data['f_name'].split()
+                    # first_name = ' '.join(full_name[:-1])
+                    # last_name = full_name[-1]
+                    # designation = form.cleaned_data['designation']
+                    # intro = form.cleaned_data['intro']
+                    # dept.teachers.create(code=code, first_name=first_name, last_name=last_name, designation=designation, intro=intro)
+                    kw = {'dept': dept}
+                    form.save(**kw)
                     messages.success(request, 'Teacher added successfully')
                     return HttpResponseRedirect(reverse('dept:admin', kwargs={'deptId': deptId}))
                 else:
@@ -304,5 +312,74 @@ def allTeachers(request, deptId):
             'lect': teachers.filter(designation='Lecturer'),
             'isLogged': request.user == dept.user,
         })
+    except Department.DoesNotExist:
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+
+def allSemesters(request, deptId):
+    # path('admin/<str:deptId>/allSemesters', views.allSemesters, name='allSemesters')
+    try:
+        dept = Department.objects.get(dept_id=deptId)
+        semesters = dept.semesters.all()
+        if request.headers.get('X-Custom-Header',None) == 'createSemester':
+            count = int(request.GET.get('count',None))
+            if count<1 or count>8:
+                messages.error(request, 'Invalid semester count')
+                return JsonResponse({'success':False})
+            else:
+                for i in range(1,count+1):
+                    dept.semesters.create(id=i)
+                return JsonResponse({'success':True})
+        return render(request, 'departments/allSemester.html', {
+            'dept': dept,
+            'semesters': semesters,
+            'noOfStudents': {semester.id: semester.students.count() for semester in semesters},
+            'isLogged': request.user == dept.user,
+        })
+    except Department.DoesNotExist:
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+    
+def addSeries(request, deptId):
+    try:
+        dept = Department.objects.get(dept_id=deptId)
+        if request.user == dept.user:
+            form = addSeriesForm(request.POST or None)
+            if request.method == 'POST':
+                print(request.headers.get('X-Custom-Headers','Nope'))
+                if request.headers.get('X-Custom-Headers',None) == 'addSeries':
+                    if form.is_valid():
+                        kw = {'dept': dept}
+                        series = form.save(**kw)
+                        serID = series.name[-2:]
+                        print(serID)
+                        roll = lambda x: str(x) if x>99 else '0'+str(x) if x>9 else '00'+str(x)
+                        rolls = {i: serID+dept.dept_code+roll(i+1) for i in range(0, series.maximum_students)}
+                        messages.success(request, 'Series added successfully')
+                        html = render(request, 'series/addStudents.html', {
+                            'dept': dept,
+                            'series': series,
+                            'rolls': rolls,
+                            'students_per_section': series.maximum_students//len(series.sections.all()),
+                            'isLogged': True,
+                        })
+                        return JsonResponse({'success':True, 'html':html.content.decode('utf-8')})
+                        
+                    else:
+                        form.add_error(None, 'Invalid form')
+                        err = render(request, 'series/addSeries.html', {
+                            'dept': dept,
+                            'form': form,
+                            'isLogged': True,
+                        })
+                        return JsonResponse({'success':False, 'html':err.content.decode('utf-8')})
+
+            return render(request, 'series/addSeries.html', {
+                'dept': dept,
+                'form': form,
+                'isLogged': True,
+            })
+        else:
+            messages.error(request, 'You are not authorized to access this page')
+            return HttpResponseRedirect(reverse('Main:home'))
+
     except Department.DoesNotExist:
         return HttpResponseNotFound('<h1>Page not found</h1>')
