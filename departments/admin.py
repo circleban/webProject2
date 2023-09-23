@@ -16,9 +16,15 @@ class CourseAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 class SeriesAdmin(admin.ModelAdmin):
-    list_display = ('name', 'admit_year', 'running_semester', 'is_running', 'department')
+    list_display = ('id', 'name', 'admit_year', 'running_semester', 'is_running', 'department')
     list_filter = ('admit_year', 'running_semester', 'is_running')
     search_fields = ('name', 'admit_year', 'running_semester', 'is_running', 'department')
+    list_per_page = 25
+
+class SemesterAdmin(admin.ModelAdmin):
+    list_display = ('id', 'sem_no', 'year', 'year_sem', 'dept')
+    list_filter = ('sem_no', 'year', 'year_sem')
+    search_fields = ('sem_no', 'year', 'year_sem', 'dept')
     list_per_page = 25
 
 admin.site.register(Department, DepartmentAdmin)
@@ -26,6 +32,6 @@ admin.site.register(Course,CourseAdmin)
 admin.site.register(Series, SeriesAdmin)
 admin.site.register(Section)
 admin.site.register(courseRegistration) 
-admin.site.register(Semester)
-
+admin.site.register(Semester, SemesterAdmin)
+admin.site.register(GradePoint)
 

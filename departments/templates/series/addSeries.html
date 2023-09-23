@@ -27,7 +27,7 @@
         </div>
     </div>
     <div class="row border border-primary rounded py-3 px-1">
-        <form method="POST" id="seriesForm">
+        <form method="POST" id="seriesForm" data-objective="addSeries">
             {% csrf_token %}
             {{form|crispy}}
         <div class="col-12">
@@ -49,26 +49,36 @@
         function submitForm(e){
             e.preventDefault();
             data = new FormData(form);
-            // need headers for csrf token
             fetch('', {
                 method: 'POST',
                 body: data,
                 headers: {
-                    'X-Custom-Headers': 'addSeries'
+                    'X-Custom-Headers': form.dataset.objective,
                 }
 
             })
             .then(response => response.json())
             .then(result => {
-                if(result['success']){
+                if(result['status']=='seriesDone'){
                     repl.innerHTML = result['html'];
-                    console.log(result['html']);
+                    console.log(document.getElementById('seriesForm').dataset.objective);
+                    if(document.getElementById('seriesForm').dataset.objective === 'addStudent'){
+                        form = document.getElementById('seriesForm');
+                        form.addEventListener('submit', submitForm);
+                        console.log('added');
+                    }
                 }
-                else{
+                else if(result['status']=='seriesFailed'){
                     const dom = new DOMParser().parseFromString(result['html'], 'text/html');
                     repl.innerHTML = dom.getElementById('replacable').innerHTML;
                     form = document.getElementById('seriesForm');
                     form.addEventListener('submit', submitForm);
+                }
+                else if(result['status']=='studentFailed'){
+                    window.location.reload();
+                }
+                else if(result['status']=='studentDone'){
+                    window.location.href = "{%url 'dept:admin' dept.dept_id %}";
                 }
             })
         }

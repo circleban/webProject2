@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Teacher
+from .models import *
 # Register your models here.
 
 class TeacherAdmin(admin.ModelAdmin):
@@ -9,3 +9,4 @@ class TeacherAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 admin.site.register(Teacher, TeacherAdmin)
+admin.site.register(courseTeacherAssignment)

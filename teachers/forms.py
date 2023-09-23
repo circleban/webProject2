@@ -46,13 +46,13 @@ class TeacherRegisterForm(UserCreationForm):
     email = forms.EmailField(required=True, label='Email')
     
     class Meta:
-        model = User
+        model = User  #rr-cse
         fields = ['code','dept_id', 'username',  'first_name','last_name','email', 'password1', 'password2']
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['username'].widget.attrs.pop("autofocus", None)       
 
-    def clean(self):
+    def clean(self):  #RT-CSE
         cleaned_data = super().clean()
         code = cleaned_data.get('code')
         dept_id = cleaned_data.get('dept_id')

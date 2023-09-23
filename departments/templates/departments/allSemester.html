@@ -16,7 +16,6 @@
                 <th scope="col">Semester No.</th>
                 <th scope="col">Offered in year</th>
                 <th scope="col">Semester of the year</th>
-                <th scope="col">Number of enrolled students</th>
                 <th scope="col">Courses</th>
             </tr>
         </thead>
@@ -26,7 +25,6 @@
                 <th scope="row">{{s.sem_no}}</th>
                 <td>{{s.year}}</td>
                 <td>{{s.year_sem}}</td>
-                <td>To be filled later</td>
                 <td><a href="#">View</a></td>
             </tr>
             {% endfor %}
@@ -40,7 +38,7 @@
     {% endif %}
 </div>
 
-<div class="modal" tabindex="-1" id="confirmation" id="confirm">
+<div class="modal" tabindex="-1" id="confirmation">
     <div class="modal-dialog">
         <div class="modal-content">
             <div class="modal-header">

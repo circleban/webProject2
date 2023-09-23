@@ -2,12 +2,13 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponseNotFound
 from django.urls import reverse
 from .models import Department, Course, Semester
+from teachers.models import courseTeacherAssignment
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from .forms import *
 from django.contrib import messages
 from django.db import IntegrityError
-import json, math
+import json, math, datetime
 # Create your views here.
 
 def homePage(request, deptId):
@@ -327,12 +328,11 @@ def allSemesters(request, deptId):
                 return JsonResponse({'success':False})
             else:
                 for i in range(1,count+1):
-                    dept.semesters.create(id=i)
+                    dept.semesters.create(sem_no=i)
                 return JsonResponse({'success':True})
         return render(request, 'departments/allSemester.html', {
             'dept': dept,
             'semesters': semesters,
-            'noOfStudents': {semester.id: semester.students.count() for semester in semesters},
             'isLogged': request.user == dept.user,
         })
     except Department.DoesNotExist:
@@ -342,10 +342,10 @@ def addSeries(request, deptId):
     try:
         dept = Department.objects.get(dept_id=deptId)
         if request.user == dept.user:
-            form = addSeriesForm(request.POST or None)
             if request.method == 'POST':
                 print(request.headers.get('X-Custom-Headers','Nope'))
                 if request.headers.get('X-Custom-Headers',None) == 'addSeries':
+                    form = addSeriesForm(request.POST) 
                     if form.is_valid():
                         kw = {'dept': dept}
                         series = form.save(**kw)
@@ -361,7 +361,7 @@ def addSeries(request, deptId):
                             'students_per_section': series.maximum_students//len(series.sections.all()),
                             'isLogged': True,
                         })
-                        return JsonResponse({'success':True, 'html':html.content.decode('utf-8')})
+                        return JsonResponse({'status':'seriesDone', 'html':html.content.decode('utf-8')})
                         
                     else:
                         form.add_error(None, 'Invalid form')
@@ -370,16 +370,187 @@ def addSeries(request, deptId):
                             'form': form,
                             'isLogged': True,
                         })
-                        return JsonResponse({'success':False, 'html':err.content.decode('utf-8')})
+                        return JsonResponse({'status':'seriesFailed', 'html':err.content.decode('utf-8')})
+                elif request.headers.get('X-Custom-Headers',None) == 'addStudent':
+                    try:
+                        serID = request.POST.get('series',None)
+                        series = Series.objects.get(id=int(serID))
+                        roll_l = lambda x: str(x) if x>99 else '0'+str(x) if x>9 else '00'+str(x)
+                        serID = series.name[-2:]
+                        rolls = {i: serID+dept.dept_code+roll_l(i+1) for i in range(0, series.maximum_students)}
+                        for i in range(0, series.maximum_students):
+                            name = request.POST.get('name-'+rolls[i],None)
+                            email = request.POST.get('email-'+rolls[i],None)
+                            sec = request.POST.get('section-'+rolls[i],None)
+                            section = Section.objects.get(name=series.name+sec)
+                            suser = User.objects.create_user(username=rolls[i], password='AwKatenI')
+                            series.students.create(roll=rolls[i], full_name=name, email=email, section=section, dept=dept, user=suser)
+                        messages.success(request, 'Students added successfully')
+                        return JsonResponse({'status':'studentDone'})
 
-            return render(request, 'series/addSeries.html', {
+                    except:
+                        messages.error(request, 'Series not found')
+                        return JsonResponse({'status':'studentFailed'})
+            else:
+                return render(request, 'series/addSeries.html', {
                 'dept': dept,
-                'form': form,
+                'form': addSeriesForm(),
                 'isLogged': True,
-            })
+                })
         else:
             messages.error(request, 'You are not authorized to access this page')
             return HttpResponseRedirect(reverse('Main:home'))
 
     except Department.DoesNotExist:
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+    
+def allSeries(request, deptId):
+    try:
+        dept = Department.objects.get(dept_id=deptId)
+        if request.user == dept.user:
+            return render(request, 'series/allSeries.html', {
+                'dept': dept,
+                'ongoing_series': dept.series.filter(is_running=True),
+                'grad_series': dept.series.filter(is_running=False),
+                'isLogged': True,
+            })
+        else:
+            messages.error(request, 'You are not authorized to access this page')
+            return HttpResponseRedirect(reverse('Main:home'))
+        
+    except Department.DoesNotExist:
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+
+def allStudents(request, deptId):
+    try:
+        dept = Department.objects.get(dept_id=deptId)
+        serID = request.GET.get('series',None)
+        series = None if serID is None else dept.series.get(id=int(serID))
+        students = dept.students.all() if series is None else series.students.all()
+        if request.user == dept.user:
+            return render(request, 'series/allStudents.html', {
+                'dept': dept,
+                'series': series,
+                'students': students,
+                'isLogged': True,
+            })
+        else:
+            messages.error(request, 'You are not authorized to access this page')
+            return HttpResponseRedirect(reverse('Main:home'))
+        
+    except Department.DoesNotExist:
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+    
+def seriesControlPanel(request, deptId, serId):
+    try:
+        dept = Department.objects.get(dept_id=deptId)
+        series = dept.series.get(id=serId)
+        if request.user == dept.user:
+            if request.method == 'POST':
+                print('Got a post request in seriesControlPanel')
+                today = request.POST.get('today',None)
+                deadline = request.POST.get('deadline',None)
+                fee = {
+                    'theory': float(request.POST.get('theoryFee',None)),
+                    'lab': float(request.POST.get('labFee',None)),
+                }
+                print(deadline, fee)
+                courseReg = series.courseReg
+                courseReg.status = 'running'
+                courseReg.start_date = today
+                courseReg.end_date = deadline
+                courseReg.fee = json.dumps(fee)
+                courseReg.save()
+                return HttpResponseRedirect(series.get_absolute_url_control_panel())
+
+            series.courseReg.check_deadline()
+            return render(request, 'series/seriesControlPanel.html', {
+                'dept': dept,
+                'series': series,
+                'today': datetime.date.today().strftime('%Y-%m-%d'),
+                'isLogged': True,
+            })
+        else:
+            messages.error(request, 'You are not authorized to access this page')
+            return HttpResponseRedirect(reverse('Main:home'))
+        
+    except Department.DoesNotExist:
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+    except Series.DoesNotExist:
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+    
+def courseTeacherAllocation(request, deptId, serId):
+    print(request.get_full_path())
+    try:
+        dept = Department.objects.get(dept_id=deptId)
+        series = dept.series.get(id=serId)
+        if request.user == dept.user:
+            if request.method == 'POST':
+                try:
+                    print('Got a post request in courseTeacherAllocation')
+                    data = json.loads(request.body)
+                    print(data) 
+                    course = Course.objects.get(title=data['courseID'])
+                    dpt = Department.objects.get(dept_id=data['dept'])
+                    teachers = data['teachers']
+                    print(len(series.allocations.all()))
+                    for t in teachers:
+                        teacher = dpt.teachers.get(code=t)
+                        courseTeacherAssignment.objects.create(course=course, 
+                                                               teacher=teacher, 
+                                                               series=series)
+                    html_content = '''
+                        <div class="row mx-2">
+                            <p class="text-primary-emphasis fw-bold font-monospace">List of Instructors for this course</p>
+                            <ul class="list-group list-group-numbered list-group-flush" id="selected-teachers">
+                    '''
+
+                    for teacher in course.teachers.all():
+                        html_content += f'''
+                                <li class="list-group-item fw-semibold custom-font">{teacher.teacher.full_name}, {teacher.teacher.designation},
+                                    Department of {teacher.teacher.dept.dept_name}
+                                </li>
+                        '''
+
+                    html_content += '''
+                            </ul>
+                        </div>
+    '''                
+                    return JsonResponse({'success':True, 'html':html_content})
+                except Exception as e:
+                    print('Error:',e)
+                    return JsonResponse({'success':False})
+            
+                
+
+            elif request.method == 'GET':
+                if request.GET.get('listFor', None) is not None:
+                    print(request.GET.get('listFor'))
+                    listFor = request.GET.get('listFor')
+                    try:
+                        dpt = Department.objects.get(dept_id=listFor)
+                        teachers = dpt.teachers.all()
+                        dt = {t.code: f'{t.full_name} - {t.designation}' for t in teachers}
+                        return JsonResponse({
+                            'success':True,
+                            'teachers': dt
+                        })
+                    except Department.DoesNotExist:
+                        return JsonResponse({'success':False})
+
+                else:
+                    return render(request, 'series/courseAllocation.html', {
+                        'dept': dept,
+                        'allDepts': Department.objects.all(),
+                        'series': series,
+                        'courses': dept.courses.filter(semester=series.running_semester),
+                        'isLogged': True,
+                    })
+        else:
+            messages.error(request, 'You are not authorized to access this page')
+            return HttpResponseRedirect(reverse('Main:home'))
+        
+    except Department.DoesNotExist:
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+    except Series.DoesNotExist:
         return HttpResponseNotFound('<h1>Page not found</h1>')

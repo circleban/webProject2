@@ -114,10 +114,10 @@ class addSeriesForm(forms.ModelForm):
         no_of_sections = self.cleaned_data['num_of_sections']
         std_per_section = self.cleaned_data['students_per_section']
         series.maximum_students = no_of_sections * std_per_section
-        series.running_semester = Semester.objects.get(id=1, dept=dept)
+        series.running_semester = Semester.objects.get(sem_no=1, dept=dept)
         if commit:
             series.save()
             for i in range(no_of_sections):
-                Section.objects.create(name=f'{dept.dept_id}{series.admit_year-2000}{chr(i+65)}', series=series) # 65 is ascii value of 'A'
+                Section.objects.create(name=f'{dept.dept_id}{series.admit_year-2000}{chr(i+65)}', series=series, maximum_students=std_per_section) # 65 is ascii value of 'A'
             courseRegistration.objects.create(series=series)
         return series

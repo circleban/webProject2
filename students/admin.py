@@ -9,3 +9,7 @@ class StudentAdmin(admin.ModelAdmin):
     list_per_page = 25
 
 admin.site.register(Student, StudentAdmin)
+admin.site.register(StudentCourse)
+admin.site.register(TheoryCourse)
+admin.site.register(LabCourse)
+admin.site.register(ClassTest)

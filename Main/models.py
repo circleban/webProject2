@@ -19,5 +19,6 @@ class Person(models.Model):
         abstract = True
 
     def save(self, *args, **kwargs):
-        self.full_name = f'{self.first_name} {self.last_name}'
+        if self.first_name and self.last_name:
+            self.full_name = f'{self.first_name} {self.last_name}'
         super(Person, self).save(*args, **kwargs)

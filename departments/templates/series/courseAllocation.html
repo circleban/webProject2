@@ -1,0 +1,179 @@
+{% extends 'departments/admin.html' %}
+
+{%block head%}
+<title>{{series.name}} course allocation</title>
+
+<style>
+    p {
+        margin-bottom: 2px;
+    }
+
+    @media (max-width: 768px) {
+        .teachers {
+            border-top: var(--bs-border-width) var(--bs-border-style) var(--bs-border-color) !important;
+            padding-top: 6px !important;
+            margin-top: calc(var(--bs-border-width) * 5.2) !important;
+            border-left: 0 !important;
+        }
+    }
+    .custom-font{
+        font-size: smaller;
+    }
+</style>
+
+{%endblock%}
+
+
+
+{%block content%}
+<div class="position-absolute start-50 translate-middle" id = 'fademsg' style="top: auto;">
+    
+</div>
+
+<div class="container">
+    <h2 class="my-3">Course Allocation of {{series.name}} for {{series.running_semester}}</h2>
+    <form method="post">
+        {% csrf_token %}
+        {% for course in courses %}
+        <div class="row border border-primary mb-3 mx-2 rounded p-2" id="{{course.title}}">
+            <div class="col-md-5">
+                <p><b>Course Code: </b>{{course.title}} </p>
+                <p><b>Course Name: </b>{{course.name}} </p>
+                <p><b>Course Credit: </b>{{course.credit}} </p>
+                <p><b>Course Type: </b>{{course.type}} </p>
+            </div>
+            <div class="col border-start teachers" id="{{course.title}}-teach">
+                {% if course.teachers.all|length == 0 %}
+                <div class="row mx-2">
+                    <select class="form-select form-select-sm select-dept" aria-label="Default select example"
+                        id="dept-select-{{course.title}}">
+                        <option selected>Choose a Department</option>
+                        {% for dept in allDepts %}
+                        <option value="{{dept.dept_id}}">{{dept.dept_name}}</option>
+                        {%endfor%}
+                    </select>
+                </div>
+                <div class="row ms-2 mt-2" style="display: none;" id="{{course.title}}-list">
+                    <label for="teacher-select-{{course.title}}">Select Instructors for this course:</label>
+                    <select class="form-select" multiple aria-label="Multiple select example"
+                        id="teacher-select-{{course.title}}" title="CTRL click to select multiple"
+                        style="height: 100px;">
+
+                    </select>
+                    <button type="button" class="btn btn-success my-2 confirm" style="width: fit-content;"
+                        data-courseID="{{course.title}}">Confirm</button>
+                </div>
+                {%else%}
+                <div class="row mx-2">
+                    <p class="text-primary-emphasis fw-bold font-monospace">List of Instructors for this course</p>
+                    <ul class="list-group list-group-numbered list-group-flush" id="selected-teachers">
+                        {% for t in course.teachers.all %}
+                        <li class="list-group-item fw-semibold custom-font">{{t.teacher.full_name}}, {{t.teacher.designation}},
+                             Department of {{t.teacher.dept.dept_name}}
+                        </li>
+                        {%endfor%}
+                    </ul>
+                </div>
+                {%endif%}
+            </div>
+
+        </div>
+        {%endfor%}
+    </form>
+</div>
+
+{%endblock%}
+
+{%block scripts%}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        s = document.querySelectorAll('.select-dept');
+        s.forEach(element => {
+            element.addEventListener('change', (evt) => {
+                fetchTeacherList(element.value, element.parentElement.parentElement.parentElement.id);
+            });
+        });
+        btns = document.querySelectorAll('.confirm');
+        btns.forEach(e => {
+            e.addEventListener('click', evt => {
+                courseID = evt.target.dataset.courseid;
+                console.log('clicked ' + courseID);
+                teach = document.getElementById('teacher-select-' + courseID);
+                let list = [];
+                for (let i = 0; i < teach.options.length; i++) {
+                    if (teach.options[i].selected) {
+                        list.push(teach.options[i].value);
+                    }
+                }
+                console.log(list);
+                csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                fetch(".", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken,
+                    },
+                    body: JSON.stringify({
+                        courseID: courseID,
+                        dept: document.getElementById('dept-select-' + courseID).value,
+                        teachers: list,
+                    })
+                })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            fademsg = document.createElement('div');
+                            fademsg.classList.add('alert', 'alert-success', 'fade', 'show', 'alert-dismissible', 'text-center');
+                            
+                            fademsg.setAttribute('role', 'alert');
+                            // place the message 10px from the top of the screen
+                            fademsg.style.top = 'auto';
+                            fademsg.innerHTML = 'Successfully allocated teachers for ' + courseID;
+
+                            $('#fademsg').append(fademsg);
+                            $('#fademsg div').fadeIn(1000).delay(2000).fadeOut(1000);
+                            
+                            div = document.getElementById(courseID + "-teach");
+                            div.innerHTML = data.html;
+                        }
+                        else {
+                            alert("Something went wrong");
+                        }
+                    });
+            });
+
+        });
+    });
+    function fetchTeacherList(dept, courseID) {
+        console.log(dept);
+        console.log(courseID);
+        fetch("{{series.get_absolute_url_course_allocation}}?" + new URLSearchParams({
+            listFor: dept
+        }))
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    div = document.getElementById(courseID + "-list");
+                    div.style.display = "block";
+                    sel = document.getElementById("teacher-select-" + courseID);
+                    sel.innerHTML = "";
+                    teachers = data.teachers;
+                    for (const key in teachers) {
+                        if (Object.hasOwnProperty.call(teachers, key)) {
+                            const element = teachers[key];
+                            sel.innerHTML += `<option value="${key}">${element}</option>`;
+                        }
+                    }
+                }
+                else {
+                    alert("Something went wrong");
+                }
+            })
+    }
+
+
+
+</script>
+
+{%endblock%}

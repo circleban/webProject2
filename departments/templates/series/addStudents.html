@@ -5,7 +5,7 @@
     </div>
 </div>
 <div class="row border border-primary rounded py-3 px-1">
-    <form method="POST" id="seriesForm">
+    <form method="POST" id="seriesForm" data-objective="addStudent">
         {% csrf_token %}
 
         <div class="col-12 mb-2" style="max-height: 65vh; overflow: auto;">
@@ -22,14 +22,16 @@
                     {% for k,v in rolls.items %}
                     <tr id="{{v}}">
                         <th scope="row">{{v}}</th>
-                        <td><input type="text" required></td>
+                        <td><input type="text" name="name-{{v}}" required></td>
                         <td>{{k|get_section:students_per_section}}</td>
-                        <td><input type="email" required></td>
+                        <input type="hidden" name="section-{{v}}" value="{{k|get_section:students_per_section}}">
+                        <td><input type="email" name="email-{{v}}" required></td>
                     </tr>
                     {% endfor %}
                 </tbody>
             </table>
         </div>
+        <input type="hidden" name="series" value="{{series.id}}">
         <div class="col-12">
             <button class="btn btn-outline-success">Next</button>
         </div>
