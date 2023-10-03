@@ -1,0 +1,301 @@
+{% extends 'teachers/home.html' %}
+
+
+{% block styles %}
+
+<style>
+    .nav-tabs {
+        --bs-nav-tabs-link-active-border-color: #75a1cc #75a1cc #fff !important;
+        --bs-nav-tabs-border-color: #75a1cc;
+    }
+</style>
+
+{% endblock %}
+
+
+{% block content %}
+
+
+<div class="container">
+    <div class="row mt-3 mx-3">
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                {% if not course.isTheoryCourse %}
+                <button class="nav-link disabled" id="home-tab" data-bs-toggle="tab" data-bs-target="#CT-tab-pane"
+                    type="button" role="tab" aria-controls="CT-tab-pane" aria-selected="true">Class Tests</button>
+                {%else%}
+                <button class="nav-link active" id="home-tab" data-bs-toggle="tab" data-bs-target="#CT-tab-pane"
+                    type="button" role="tab" aria-controls="CT-tab-pane" aria-selected="true">Class Tests</button>
+                {%endif%}
+            </li>
+            <li class="nav-item" role="presentation">
+                {% if not course.isTheoryCourse %}
+                <button class="nav-link disabled" id="semester-final-tab" data-bs-toggle="tab"
+                    data-bs-target="#semester-final-tab-pane" type="button" role="tab"
+                    aria-controls="semester-final-tab-pane" aria-selected="false">Semester
+                    Final</button>
+                {%else%}
+                <button class="nav-link" id="semester-final-tab" data-bs-toggle="tab"
+                    data-bs-target="#semester-final-tab-pane" type="button" role="tab"
+                    aria-controls="semester-final-tab-pane" aria-selected="false">Semester
+                    Final</button>
+                {%endif%}
+            </li>
+            <li class="nav-item" role="presentation">
+                {%if course.isTheoryCourse %}
+                <button class="nav-link disabled" id="lab-tab" data-bs-toggle="tab" data-bs-target="#lab-tab-pane"
+                    type="button" role="tab" aria-controls="lab-tab-pane" aria-selected="false">Lab Marks</button>
+                {%else%}
+                <button class="nav-link active" id="lab-tab" data-bs-toggle="tab" data-bs-target="#lab-tab-pane"
+                    type="button" role="tab" aria-controls="lab-tab-pane" aria-selected="false">Lab Marks</button>
+                {%endif%}
+            </li>
+
+        </ul>
+        <div class="tab-content p-0 mt-1" id="myTabContent">
+            {% if course.isTheoryCourse %}
+            <div class="tab-pane fade show active" id="CT-tab-pane" role="tabpanel" aria-labelledby="home-tab"
+                tabindex="0">
+                {%else%}
+                <div class="tab-pane fade show" id="CT-tab-pane" role="tabpanel" aria-labelledby="home-tab"
+                    tabindex="0">
+                    {%endif%}
+
+                    <form method="post">
+                        {%csrf_token%}
+                        <div class="row my-1">
+                            <div class="col">
+                                <h4>Class Test marks for <i>{{course.title}}: {{course.name}}</i></h4>
+                            </div>
+                            <div class="col text-end">
+                                <button type="submit" class="btn btn-primary" id="CT-btn" value="CT"
+                                    name="save-marks">Save</button>
+                            </div>
+                        </div>
+                        <div class="table-responsive-md">
+                            <table class="table table-hover table-bordered border-secondary-subtle text-center">
+                                <thead>
+                                    <tr>
+                                        <th scope="col" rowspan="2" style="vertical-align: middle;">
+                                            Roll No
+                                        </th>
+                                        <th scope="col" rowspan="2" style="vertical-align: middle;">Name </th>
+                                        <th scope="col" rowspan="2" style="vertical-align: middle;">Section</th>
+                                        <th scope="col" colspan="{{no_of_cts|length}}"> Class Test marks </th>
+
+                                    </tr>
+                                    <tr id="CT-header">
+                                        {% for i in no_of_cts %}
+                                        <th scope="col">CT-{{i}}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for k,v in info.items %}
+                                    <tr>
+                                        <th scope="row">{{k}}</th>
+                                        <td>{{v.student.full_name}}</td>
+                                        <td>{{v.student.section.name|last}}</td>
+                                        {% for i in v.class_tests %}
+                                        {% if i.obtained_marks == None %}
+                                        <td><input type="number" name="{{k}}-CT" class="form-control"></td>
+                                        {%else%}
+                                        <td><input type="number" name="{{k}}-CT" class="form-control"
+                                                value="{{i.obtained_marks}}"></td>
+                                        {% endif %}
+
+                                        {% endfor %}
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </form>
+                </div>
+                {% if not course.isTheoryCourse %}
+                <div class="tab-pane fade show active" id="lab-tab-pane" role="tabpanel" aria-labelledby="lab-tab"
+                    tabindex="0">
+                    {%else%}
+                    <div class="tab-pane fade" id="lab-tab-pane" role="tabpanel" aria-labelledby="lab-tab" tabindex="0">
+                        {%endif%}
+                        <form method="post">
+                            {%csrf_token%}
+                            <div class="row my-1">
+                                <div class="col">
+                                    <h4>Lab scores for <i>{{course.title}}: {{course.name}}</i></h4>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="submit" class="btn btn-primary" id="lab-btn" value="lab"
+                                        name="save-marks">Save</button>
+                                </div>
+                            </div>
+                            <div class="table-responsive-md">
+                                <table class="table table-hover table-bordered border-secondary-subtle text-center">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col" rowspan="2" style="vertical-align: middle;">
+                                                Roll No
+                                            </th>
+                                            <th scope="col" rowspan="2" style="vertical-align: middle;">Name </th>
+                                            <th scope="col" rowspan="2" style="vertical-align: middle;">Section</th>
+                                            <th scope="col" colspan="6"> Lab Marks </th>
+                                            <th scope="col" rowspan="2" style="vertical-align: middle;">Total</th>
+                                        </tr>
+                                        <tr id="lab-header">
+                                            <th scope="col">Lab Performance</th>
+                                            <th scope="col">Lab Report</th>
+                                            <th scope="col">Lab Attendance</th>
+                                            <th scope="col">Lab Quiz</th>
+                                            <th scope="col">Lab Final</th>
+                                            <th scope="col">Board Viva</th>
+                                            
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for k,v in info.items %}
+                                        <tr>
+                                            <th scope="row">{{k}}</th>
+                                            <td>{{v.student.full_name}}</td>
+                                            <td>{{v.student.section.name|last}}</td>
+                                            <td><input type="number" name="{{k}}-lab-perform" class="form-control labs"
+                                                    value="{{v.lab.labPerformance}}" data-roll="{{k}}"></td>
+                                            <td><input type="number" name="{{k}}-lab-report" class="form-control labs"
+                                                    value="{{v.lab.labReport}}" data-roll="{{k}}"></td>
+                                            <td><input type="number" name="{{k}}-lab-attendance" class="form-control labs"
+                                                    value="{{v.lab.attendance}}" data-roll="{{k}}"></td>
+                                            <td><input type="number" name="{{k}}-lab-quiz" class="form-control labs"
+                                                    value="{{v.lab.labquiz}}" data-roll="{{k}}"></td>
+                                            <td><input type="number" name="{{k}}-lab-final" class="form-control labs"
+                                                    value="{{v.lab.labfinal}}" data-roll="{{k}}"></td>
+                                            <td><input type="number" name="{{k}}-lab-viva" class="form-control labs"
+                                                    value="{{v.lab.viva}}" data-roll="{{k}}"></td>
+                                            <td><input type="number" name="{{k}}-lab-total" class="form-control"
+                                                    value="{{v.lab_total}}" disabled readonly></td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="tab-pane fade" id="semester-final-tab-pane" role="tabpanel"
+                        aria-labelledby="semester-final-tab" tabindex="0">
+                        <form method="post">
+                            {%csrf_token%}
+                            <div class="row my-1">
+                                <div class="col">
+                                    <h4>Semester Final marks for <i>{{course.title}}: {{course.name}}</i></h4>
+                                </div>
+                                <div class="col text-end">
+                                    <button type="submit" class="btn btn-primary" id="semester-final-btn"
+                                        value="semester-final" name="save-marks">Save</button>
+                                </div>
+                                <div class="table-responsive-md">
+                                    <table class="table table-hover table-bordered border-secondary-subtle text-center">
+                                        <thead>
+                                            <tr>
+                                                <th scope="col" rowspan="2" style="vertical-align: middle;">
+                                                    Roll No
+                                                </th>
+                                                <th scope="col" rowspan="2" style="vertical-align: middle;">Name </th>
+                                                <th scope="col" rowspan="2" style="vertical-align: middle;">Section</th>
+                                                <th scope="col" colspan="3"> Semester Final Marks </th>
+                                                <th scope="col" rowspan="2" style="vertical-align: middle;">Total Marks</th>
+
+                                            </tr>
+                                            <tr id="final-header">
+                                                <th scope="col">Section A</th>
+                                                <th scope="col">Section B</th>
+                                                <th scope="col">Attendance</th>
+                                                
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {% for k,v in info.items %}
+                                            <tr>
+                                                <th scope="row">{{k}}</th>
+                                                <td>{{v.student.full_name}}</td>
+                                                <td>{{v.student.section.name|last}}</td>
+                                                <td><input type="number" name="{{k}}-sectionA"
+                                                        class="form-control sectionA" value="{{v.theory.sectionA}}"
+                                                        data-roll="{{k}}"></td>
+                                                <td><input type="number" name="{{k}}-sectionB"
+                                                        class="form-control sectionB" value="{{v.theory.sectionB}}"
+                                                        data-roll="{{k}}"></td>
+                                                <td><input type="number" name="{{k}}-attendance"
+                                                        class="form-control theory-attendance"
+                                                        value="{{v.theory.attendance}}" data-roll="{{k}}"></td>
+                                                <td><input type="number" name="{{k}}-total-marks" class="form-control"
+                                                        value="{{v.theory_total}}" disabled readonly></td>
+                                            </tr>
+                                            {% endfor %}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% endblock %}
+
+{%block scripts%}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        secA = document.querySelectorAll('.sectionA');
+        secB = document.querySelectorAll('.sectionB');
+        att = document.querySelectorAll('.theory-attendance');
+        secA.forEach(element => {
+            element.addEventListener('input', () => {
+                roll = element.getAttribute('data-roll');
+                secB = document.getElementsByName(`${roll}-sectionB`)[0];
+                att = document.getElementsByName(`${roll}-attendance`)[0];
+                total = document.getElementsByName(`${roll}-total-marks`)[0];
+                total.value = (parseInt(element.value) || 0) + (parseInt(secB.value) || 0) + (parseInt(att.value) || 0);
+                console.log(total.value);
+            })
+        })
+        secB.forEach(element => {
+            element.addEventListener('input', () => {
+                roll = element.getAttribute('data-roll');
+                secA = document.getElementsByName(`${roll}-sectionA`)[0];
+                att = document.getElementsByName(`${roll}-attendance`)[0];
+                total = document.getElementsByName(`${roll}-total-marks`)[0];
+                total.value = (parseInt(element.value) || 0) + (parseInt(secA.value) || 0) + (parseInt(att.value) || 0);
+                console.log(total.value);
+            })
+        })
+        att.forEach(element => {
+            element.addEventListener('input', () => {
+                roll = element.getAttribute('data-roll');
+                secA = document.getElementsByName(`${roll}-sectionA`)[0];
+                secB = document.getElementsByName(`${roll}-sectionB`)[0];
+                total = document.getElementsByName(`${roll}-total-marks`)[0];
+                total.value = (parseInt(element.value) || 0) + (parseInt(secA.value) || 0) + (parseInt(secB.value) || 0);
+                console.log(total.value);
+            })
+        })
+        labs = document.querySelectorAll('.labs');
+        labs.forEach(e => {
+            e.addEventListener('input', ()=>{
+                roll = e.getAttribute('data-roll');
+                viva = document.getElementsByName(`${roll}-lab-viva`)[0];
+                perform = document.getElementsByName(`${roll}-lab-perform`)[0];
+                report = document.getElementsByName(`${roll}-lab-report`)[0];
+                attendance = document.getElementsByName(`${roll}-lab-attendance`)[0];
+                quiz = document.getElementsByName(`${roll}-lab-quiz`)[0];
+                final = document.getElementsByName(`${roll}-lab-final`)[0];
+                total = document.getElementsByName(`${roll}-lab-total`)[0];
+                total.value = (parseInt(viva.value) || 0) + (parseInt(perform.value) || 0) + (parseInt(report.value) || 0) + (parseInt(attendance.value) || 0) + (parseInt(quiz.value) || 0) + (parseInt(final.value) || 0);
+                
+            })
+        })
+    });
+
+
+</script>
+
+{%endblock%}

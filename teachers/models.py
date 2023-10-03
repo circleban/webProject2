@@ -57,7 +57,7 @@ class courseTeacherAssignment(models.Model):
                                related_name='teachers')
     teacher = models.ForeignKey(Teacher, 
                                 on_delete=models.CASCADE, 
-                                related_name='courses')
+                                related_name='teaches')
     series = models.ForeignKey(Series, 
                                on_delete=models.CASCADE, 
                                related_name='allocations')
@@ -73,3 +73,5 @@ class courseTeacherAssignment(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['course', 'teacher', 'series', 'section'], name='unique_course_teacher')
         ]
+    def get_absolute_url(self):
+        return reverse('teachers:teaches_course', kwargs={'courseId': self.course.title})

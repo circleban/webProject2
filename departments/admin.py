@@ -27,11 +27,17 @@ class SemesterAdmin(admin.ModelAdmin):
     search_fields = ('sem_no', 'year', 'year_sem', 'dept')
     list_per_page = 25
 
+class GradePointAdmin(admin.ModelAdmin):
+    list_display = ('id', 'grade', 'minimum_marks', 'maximum_marks', 'point')
+    list_filter = ('grade', 'minimum_marks', 'maximum_marks', 'point')
+    search_fields = ('grade', 'minimum_marks', 'maximum_marks', 'point')
+    list_per_page = 25
+
 admin.site.register(Department, DepartmentAdmin)
-admin.site.register(Course,CourseAdmin)
+admin.site.register(Course, CourseAdmin)
 admin.site.register(Series, SeriesAdmin)
 admin.site.register(Section)
 admin.site.register(courseRegistration) 
 admin.site.register(Semester, SemesterAdmin)
-admin.site.register(GradePoint)
+admin.site.register(GradePoint, GradePointAdmin)
 

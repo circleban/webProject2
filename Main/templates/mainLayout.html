@@ -41,9 +41,9 @@
     <header class="site-navbar mt-3">
       <div class="container-fluid">
         <div class="row align-items-center">
-          <div class="site-logo col-6"><a href="index.html">My Institute</a></div>
+          <div class="site-logo col-6"><a href="#">My Institute</a></div>
 
-          <nav class="mx-auto site-navigation text-center col">
+          <nav class="ms-auto site-navigation text-center col">
             <ul class="site-menu js-clone-nav d-none d-xl-block ml-0 pl-0">
               <li><a href="{% url 'Main:home' %}" class="nav-link active">Home</a></li>
               <li class="nav-link"><a href="#">About</a></li>
@@ -51,14 +51,18 @@
                 <a href="{%url 'teachers:home' %}">Teacher's Panel</a>
 
               </li>
-              <li class="has-children nav-link">
+              <li class="nav-link">
+                <a href="{% url 'students:home' %}">Student's Panel</a>
+
+              </li>
+              <!-- <li class="has-children nav-link">
                 <a href="#">Admissions</a>
                 <ul class="dropdown">
                     {#TODO place departments here #}
                   <li><a href="#">Undergraduate admission</a></li>
                   <li><a href="#">Post-graduate admission</a></li>
                 </ul>
-              </li>
+              </li> -->
               <li class="has-children nav-link"><a href="#">Departments</a>
 			<ul class="dropdown">
                 {#TODO place departments here #}

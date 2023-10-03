@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponseNotFound
 from django.urls import reverse
 from .models import Department, Course, Semester
+from Main.models import Notification
 from teachers.models import courseTeacherAssignment
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
@@ -263,13 +264,6 @@ def addTeacher(request, deptId):
         if request.user == dept.user:
             if request.method == 'POST':
                 if form.is_valid():
-                    # code = form.cleaned_data['code']
-                    # full_name = form.cleaned_data['f_name'].split()
-                    # first_name = ' '.join(full_name[:-1])
-                    # last_name = full_name[-1]
-                    # designation = form.cleaned_data['designation']
-                    # intro = form.cleaned_data['intro']
-                    # dept.teachers.create(code=code, first_name=first_name, last_name=last_name, designation=designation, intro=intro)
                     kw = {'dept': dept}
                     form.save(**kw)
                     messages.success(request, 'Teacher added successfully')
@@ -448,20 +442,8 @@ def seriesControlPanel(request, deptId, serId):
         if request.user == dept.user:
             if request.method == 'POST':
                 print('Got a post request in seriesControlPanel')
-                today = request.POST.get('today',None)
-                deadline = request.POST.get('deadline',None)
-                fee = {
-                    'theory': float(request.POST.get('theoryFee',None)),
-                    'lab': float(request.POST.get('labFee',None)),
-                }
-                print(deadline, fee)
-                courseReg = series.courseReg
-                courseReg.status = 'running'
-                courseReg.start_date = today
-                courseReg.end_date = deadline
-                courseReg.fee = json.dumps(fee)
-                courseReg.save()
-                return HttpResponseRedirect(series.get_absolute_url_control_panel())
+                return seriesControl_post_request(request, dept, series)
+                
 
             series.courseReg.check_deadline()
             return render(request, 'series/seriesControlPanel.html', {
@@ -478,7 +460,43 @@ def seriesControlPanel(request, deptId, serId):
         return HttpResponseNotFound('<h1>Page not found</h1>')
     except Series.DoesNotExist:
         return HttpResponseNotFound('<h1>Page not found</h1>')
-    
+def seriesControl_post_request(request, dept, series):
+    if request.POST.get('controls', None) == 'courseReg':
+        print('In courseReg')
+        today = request.POST.get('today',None)
+        deadline = request.POST.get('deadline',None)
+        fee = {
+            'theory': float(request.POST.get('theoryFee',None)),
+            'lab': float(request.POST.get('labFee',None)),
+        }
+        print(deadline, fee)
+        courseReg = series.courseReg
+        courseReg.status = 'running'
+        courseReg.start_date = today
+        courseReg.end_date = deadline
+        courseReg.fee = json.dumps(fee)
+        courseReg.save()
+        return HttpResponseRedirect(series.get_absolute_url_control_panel())
+    elif request.POST.get('controls', None) == 'announce-exam':
+        print('Announce exam')
+        series.exam_status = 'R'
+        series.save()
+        start_date = request.POST.get('start-date',None)
+        for student in series.students.all():
+            Notification.objects.create(
+                From = dept.user,
+                to=student.user, 
+                title='Exam announced', 
+                message= f'''Exam has been announced for your series. Exam will start from {start_date}''',
+                )
+        return HttpResponseRedirect(series.get_absolute_url_control_panel())
+    elif json.load(request).get('controls', None) == 'end-exam':
+        print('End exam')
+        series.exam_status = 'F'
+        series.save()
+        return JsonResponse({'success':True})
+
+
 def courseTeacherAllocation(request, deptId, serId):
     print(request.get_full_path())
     try:
@@ -520,9 +538,6 @@ def courseTeacherAllocation(request, deptId, serId):
                 except Exception as e:
                     print('Error:',e)
                     return JsonResponse({'success':False})
-            
-                
-
             elif request.method == 'GET':
                 if request.GET.get('listFor', None) is not None:
                     print(request.GET.get('listFor'))

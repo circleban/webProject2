@@ -82,16 +82,34 @@
                                 Course Teacher Allocation
                             </a>
                         </div>
+                        {% if series.exam_status == "NR" %}
                         <div>
                             <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
-                                href="#">
+                                href="#" data-bs-toggle="modal" data-bs-target="#announce-exam">
                                 Announce Exam
                             </a>
                         </div>
+                        {%endif%}
+                        {% if series.exam_status == "F" %}
                         <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
                             href="#">
                             Announce Result
                         </a>
+                        {%endif%}
+                        {% if series.exam_status == "R" %}
+                        <div>
+                            Exam is running -
+                            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                                href="#">
+                                See status
+                            </a>
+                            or,
+                            <a class="link-offset-2 link-offset-3-hover link-underline link-underline-opacity-0 link-underline-opacity-75-hover"
+                                href="#" name="controls" value="end-exam" id="end-exam">
+                                End Exam
+                            </a>
+                        </div>
+                        {%endif%}
 
                     </div>
                 </div>
@@ -134,7 +152,33 @@
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <button type="submit" class="btn btn-primary" name="controls" value="courseReg">Save
+                        changes</button>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="announce-exam" tabindex="-1" aria-labelledby="announce-examLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="announce-examLabel">Announce Semester Final for {{series.name}}</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <div class="modal-body">
+                    <div class="mb-3">
+                        <label for="start-date" class="form-label">Starting Date: </label>
+                        <input type="date" class="form-control" id="start-date" name="start-date">
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary" name="controls" value="announce-exam">Confirm</button>
                 </div>
             </form>
 
@@ -143,3 +187,52 @@
 </div>
 
 {% endblock %}
+
+{%block scripts%}
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        document.getElementById('end-exam').addEventListener('click', () => {
+            if (confirm('Are you sure you want to end the exam?')) {
+                const csrftoken = getCookie('csrftoken');
+                fetch('', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRFToken': csrftoken
+                    },
+                    body: JSON.stringify({
+                        controls: 'end-exam'
+                    })
+                }).
+                then(res => res.json())
+                .then(data=>{
+                    if(data.success){
+                        location.reload();
+                    }
+                    else{
+                        alert('Something went wrong');
+                    }
+                })
+            }
+        })
+    });
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+</script>
+
+{%endblock%}
