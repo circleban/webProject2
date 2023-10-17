@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.http import HttpResponseRedirect, JsonResponse, HttpResponseNotFound
 from django.urls import reverse
 from .models import Department, Course, Semester
+from students.models import *
 from Main.models import Notification
 from teachers.models import courseTeacherAssignment
 from django.contrib.auth.decorators import login_required
@@ -561,6 +562,69 @@ def courseTeacherAllocation(request, deptId, serId):
                         'courses': dept.courses.filter(semester=series.running_semester),
                         'isLogged': True,
                     })
+        else:
+            messages.error(request, 'You are not authorized to access this page')
+            return HttpResponseRedirect(reverse('Main:home'))
+        
+    except Department.DoesNotExist:
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+    except Series.DoesNotExist:
+        return HttpResponseNotFound('<h1>Page not found</h1>')
+    
+def result(request, deptId, serId):
+    try:
+        dept = Department.objects.get(dept_id=deptId)
+        series = dept.series.get(id=serId)
+        if request.user == dept.user:
+            if request.method == 'POST':
+                print('Got a post request in result')
+                if request.POST.get('action') == 'publish':
+                    print('Publishing result')
+                    students = series.students.all()
+                    for student in students:
+                        student.results.create(semester = series.running_semester)
+                        Notification.objects.create(
+                            From = dept.user,
+                            to=student.user, 
+                            title='Result published', 
+                            message= '''Result has been published for your series. You can check your result now.''',
+                            )
+                    series.complete_semester()
+                    messages.success(request, 'Result published successfully')
+                elif request.POST.get('action') == 'cancel':
+                    messages.success(request, 'Result publishing cancelled')
+                return HttpResponseRedirect(series.get_absolute_url_control_panel())
+            else:
+                context = {}
+                courses = dept.courses.filter(semester=series.running_semester)
+                for c in courses:
+                    sc = c.taken_by.all()
+                    m = {}
+                    for s in sc:
+                        try:
+                            theory = s.students_theorycourse_exams.latest('id')
+                        except TheoryCourse.DoesNotExist:
+                            theory = None
+                        try:
+                            lab = s.students_labcourse_exams.latest('id')
+                        except LabCourse.DoesNotExist:
+                            lab = None
+                        m[s.student.roll] = {
+                            'student': s.student,
+                            'theory': theory,
+                            'lab': lab,
+                        }
+                    context[c.title] = {
+                        'course': c,
+                        'marks': m,
+                    }
+                        
+                return render(request, 'series/result.html', {
+                    'dept': dept,
+                    'series': series,
+                    'marks': context,
+                    'isLogged': True,
+                })
         else:
             messages.error(request, 'You are not authorized to access this page')
             return HttpResponseRedirect(reverse('Main:home'))

@@ -73,5 +73,8 @@ class courseTeacherAssignment(models.Model):
         constraints = [
             models.UniqueConstraint(fields=['course', 'teacher', 'series', 'section'], name='unique_course_teacher')
         ]
+    def finish_course(self):
+        self.status = 'Finished'
+        self.save()
     def get_absolute_url(self):
         return reverse('teachers:teaches_course', kwargs={'courseId': self.course.title})

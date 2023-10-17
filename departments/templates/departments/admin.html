@@ -51,10 +51,12 @@
                         <a class="nav-link disabled">Disabled</a>
                     </li>
                 </ul>
-                <form class="d-flex" role="search">
-                    <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search">
-                    <button class="btn btn-outline-success" type="submit">Search</button>
-                </form>
+                <div class="d-flex">
+                    <a href="{% url 'dept:logout' dept.dept_id %}"><button class="btn btn-outline-success">Log
+                            Out</button></a>
+
+
+                </div>
             </div>
         </div>
     </nav>
@@ -93,7 +95,7 @@
                                             d="M1 8a.5.5 0 0 1 .5-.5h11.793l-3.147-3.146a.5.5 0 0 1 .708-.708l4 4a.5.5 0 0 1 0 .708l-4 4a.5.5 0 0 1-.708-.708L13.293 8.5H1.5A.5.5 0 0 1 1 8z" />
                                     </svg>
                                 </a></li>
-                                <li class="list-group-item"><a
+                            <li class="list-group-item"><a
                                     class="link-primary link-offset-2 link-offset-3-hover icon-link icon-link-hover"
                                     href="{% url 'dept:allSemesters' dept.dept_id %}">
                                     Manage Semesters

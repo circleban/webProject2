@@ -82,8 +82,6 @@ def courseReg(request):
                 )
             elif request.headers.get("X-objective", None) == "cancel":
                 print("in cancel")
-                # request.session.pop("course_list",None)
-                # request.session.pop("total_fee",None)
                 return JsonResponse({"success": True, "url": reverse("students:home")})
             elif request.POST.get("submit", None) is not None:
                 c_list = request.POST.getlist("courses")
@@ -142,7 +140,6 @@ def courseReg(request):
                                 examfor=std_course,
                             )
                             print(f"{c} - lab")
-                        
 
                     txn.set_expired()
                     messages.success(request, "Course Registration Successful")
@@ -174,6 +171,33 @@ def courseReg(request):
                 "courses": cd,
             },
         )
+    except Student.DoesNotExist:
+        messages.error(request, "Login as a student first")
+        return HttpResponseRedirect(reverse("students:login"))
+
+
+def results(request):
+    if not request.user.is_authenticated:
+        messages.error(request, "Login as a student first")
+        return HttpResponseRedirect(reverse("students:login"))
+    try:
+        student = Student.objects.get(user=request.user)
+        all_students = Student.objects.filter(series=student.series)
+        results = {
+            std: {
+                'result': std.results.latest("semester"),
+                'total_credit': sum([r.obtained_credit for r in std.results.all()]),
+            }
+            for std in all_students
+        }
+        return render(
+            request,
+            "students/results.html",
+            {"student": student, 
+             'semester': student.dept.semesters.get(sem_no = student.series.running_semester.sem_no-1),
+             "results": results},
+        )
+
     except Student.DoesNotExist:
         messages.error(request, "Login as a student first")
         return HttpResponseRedirect(reverse("students:login"))

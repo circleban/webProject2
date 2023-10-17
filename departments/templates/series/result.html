@@ -1,0 +1,148 @@
+{% extends 'departments/admin.html' %}
+{%load static%}
+{%block head%}
+<title>All Courses</title>
+<link rel="canonical" href="https://getbootstrap.com/docs/5.3/examples/sidebars/">
+<link rel="stylesheet" href="{%static 'mycss/sidebar.css' %}">
+<style>
+</style>
+
+{%endblock%}
+{% block content %}
+
+<main class="container-fluid">
+    <div class="d-flex flex-column align-items-stretch justify-content-center flex-shrink-0 bg-body-tertiary mt-3 mb-3"
+        style="width: 380px;  " id="mine">
+        <div class="d-flex align-items-center flex-shrink-0 p-3 link-body-emphasis text-decoration-none border-bottom">
+            <svg class="bi pe-none me-2" width="30" height="24">
+                <use xlink:href="#bootstrap"></use>
+            </svg>
+            <span class="fs-5 fw-semibold">Select a course</span>
+        </div>
+        <div class="list-group list-group-flush border-bottom scrollarea">
+            {% for k,v in marks.items %}
+            <a href="#" class="list-group-item list-group-item-action py-3 lh-sm course-list" aria-current="true"
+                data-course="{{k}}" id="c-{{k}}">
+                <div class="d-flex w-100 align-items-center justify-content-between">
+                    <strong class="mb-1">{{k}}</strong>
+                    <small>Credits: <i>{{v.course.credit}}</i></small>
+                </div>
+                <div class="col-10 mb-1 small">Course Type: {{v.course.type}}</div>
+            </a>
+            {%endfor%}
+
+        </div>
+    </div>
+    <div class="row mt-3 mx-3">
+        <div class="row">
+            <div class="col-7"><h3>Marks Summary for {{series.name}}</h3></div>
+            <div class="col text-end">
+                <form method="post">
+                    {%csrf_token%}
+                    <button type="submit" class="btn btn-outline-success" name="action" value="publish">Publish Result</button>
+                    <button type="submit" class="btn btn-outline-danger" name="action" value="cancel">Cancel</button>
+                </form>
+            </div>
+
+        </div>
+        {% for k, v in marks.items %}
+        <div class="table-responsive-md text-center courses" id="{{k}}" style="display: none;">
+            <h5 class="text-secondary text-start">Course Name: <i>{{v.course.name}}</i></h5>
+            <table class="table table-hover table-bordered">
+                {% if v.course.isTheoryCourse %}
+                <thead>
+                    <tr>
+                        <th scope="col" rowspan="2" style="vertical-align: middle;">Roll No</th>
+                        <th scope="col" rowspan="2" style="vertical-align: middle;">Name</th>
+                        <th scope="col" rowspan="2" style="vertical-align: middle;">Section</th>
+                        <th scope="col" rowspan="2" style="vertical-align: middle;">CT Total</th>
+                        <th scope="col" colspan="2">Semester Final</th>
+                        <th scope="col" rowspan="2" style="vertical-align: middle;">Attendance</th>
+                        <th scope="col" rowspan="2" style="vertical-align: middle;">Total</th>
+                    </tr>
+                    <tr>
+                        <th scope="col">Section A</th>
+                        <th scope="col">Section B</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i, j in v.marks.items %}
+                    <tr>
+                        <th scope="row">{{i}}</th>
+                        <td>{{j.student.full_name}}</td>
+                        <td>{{j.student.section.name|last}}</td>
+                        <td>{{j.theory.get_ct_total}}</td>
+                        <td>{{j.theory.sectionA}}</td>
+                        <td>{{j.theory.sectionB}}</td>
+                        <td>{{j.theory.attendance}}</td>
+                        <td>{{j.theory.get_total_marks}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {% else %}
+                <thead>
+                    <tr>
+                        <th scope="col" rowspan="2" style="vertical-align: middle;">Roll No</th>
+                        <th scope="col" rowspan="2" style="vertical-align: middle;">Name</th>
+                        <th scope="col" rowspan="2" style="vertical-align: middle;">Section</th>
+                        <th scope="col" colspan="6" style="vertical-align: middle;">Lab Marks</th>
+                        <th scope="col" rowspan="2" style="vertical-align: middle;">Total</th>
+                    </tr>
+                    <tr>
+                        <th scope="col">Lab Performance</th>
+                        <th scope="col">Lab Report</th>
+                        <th scope="col">Lab Attendance</th>
+                        <th scope="col">Lab Quiz</th>
+                        <th scope="col">Lab Final</th>
+                        <th scope="col">Board Viva</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for i, j in v.marks.items %}
+                    <tr>
+                        <th scope="row">{{i}}</th>
+                        <td>{{j.student.full_name}}</td>
+                        <td>{{j.student.section.name|last}}</td>
+                        <td>{{j.lab.labPerformance}}</td>
+                        <td>{{j.lab.labReport}}</td>
+                        <td>{{j.lab.attendance}}</td>
+                        <td>{{j.lab.labquiz}}</td>
+                        <td>{{j.lab.labfinal}}</td>
+                        <td>{{j.lab.viva}}</td>
+                        <td>{{j.lab.get_total_marks}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+                {%endif%}
+            </table>
+        </div>
+        {%endfor%}
+    </div>
+</main>
+{% endblock %}
+{%block scripts%}
+
+<script>
+    document.addEventListener('DOMContentLoaded', ()=>{
+        const course_list = document.querySelectorAll('.course-list');
+        course_list[0].classList.add('active');
+        const courses = document.querySelectorAll('.courses');
+        courses[0].style.display = 'block';
+        course_list.forEach((course)=>{
+            course.addEventListener('click', ()=>{
+                const course_id = course.dataset.course;
+                const course_div = document.getElementById(course_id);
+                courses.forEach((c)=>{
+                    c.style.display = 'none';
+                })
+                course_list.forEach((c)=>{
+                    c.classList.remove('active');
+                })
+                course_div.style.display = 'block';
+                course.classList.add('active');
+            })
+        })
+    })
+</script>
+
+{%endblock%}

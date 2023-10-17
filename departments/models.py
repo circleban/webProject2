@@ -152,7 +152,17 @@ class Series(models.Model):
         return (
             f"{self.name}, {self.admit_year}, Running semester: {self.running_semester}"
         )
-
+    def complete_semester(self):
+        self.exam_status = "NR"
+        self.courseReg.status = "pending"
+        self.update_semester()
+        self.courseReg.save()
+        self.save()
+    def update_semester(self):
+        if self.running_semester.sem_no == self.department.semesters.count():
+            self.is_running = False
+        else:
+            self.running_semester = self.department.semesters.get(sem_no=self.running_semester.sem_no + 1)
     def get_absolute_url_control_panel(self):
         return reverse(
             "dept:seriesControlPanel",
@@ -162,6 +172,11 @@ class Series(models.Model):
     def get_absolute_url_course_allocation(self):
         return reverse(
             "dept:courseTeacherAllocation",
+            kwargs={"deptId": self.department.dept_id, "serId": self.id},
+        )
+    def get_absolute_url_result(self):
+        return reverse(
+            "dept:result",
             kwargs={"deptId": self.department.dept_id, "serId": self.id},
         )
 

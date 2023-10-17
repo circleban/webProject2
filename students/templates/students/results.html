@@ -1,0 +1,43 @@
+{% extends 'students/home.html' %}
+
+{% block content %}
+
+<div class="container">
+    <h3>Result for {{semester}} of {{student.series.name}}</h3>
+    <div class="row mb-3 mx-2">
+        <div class="col-md-8 border">
+            <div class="table-responsive">
+                <table class="table table-hover table-border">
+                    <thead>
+                        <tr>
+                            <th scope="col" rowspan="2">Roll No</th>
+                            <th scope="col" rowspan="2">Name</th>
+                            <th scope="col" colspan="2">Earned Credits</th>
+                            <th scope="col" rowspan="2">GPA</th>
+                            <th scope="col" rowspan="2">CGPA</th>
+                        </tr>
+                        <tr>
+                            <th scope="col">Current Semester</th>
+                            <th scope="col">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="table-group-divider">
+                        {% for std, info in results.items %}
+                        <tr>
+                            <th scope="row">{{std.roll}}</th>
+                            <td>{{std.name}}</td>
+                            <td>{{info.result.obtained_credit}}</td>
+                            <td>{{info.total_credit}}</td>
+                            <td>{{info.result.gpa}}</td>
+                            <td>{{std.cgpa}}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+{%endblock%}

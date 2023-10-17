@@ -17,6 +17,7 @@ urlpatterns = [
     path('admin/<str:deptId>/add-series/', views.addSeries, name='addSeries'),
     path('admin/<str:deptId>/all-series/', views.allSeries, name='allSeries'),
     path('admin/<str:deptId>/all-students/', views.allStudents, name='allStudents'),
+    path('admin/<str:deptId>/result/<int:serId>/', views.result, name='result'),
     path('admin/<str:deptId>/<int:serId>/control-panel/', views.seriesControlPanel, name='seriesControlPanel'),
     path('admin/<str:deptId>/<int:serId>/course-allocation/', views.courseTeacherAllocation, name='courseTeacherAllocation'),
     path('admin/<str:deptId>/modify-course/<int:semester_id>/', views.courseTable, name='courseTable'),

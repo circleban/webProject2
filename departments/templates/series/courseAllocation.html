@@ -123,6 +123,7 @@
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
+                            document.querySelector("#fademsg").innerHTML = "";
                             fademsg = document.createElement('div');
                             fademsg.classList.add('alert', 'alert-success', 'fade', 'show', 'alert-dismissible', 'text-center');
                             
